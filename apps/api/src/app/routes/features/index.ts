@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express'
 
-function getMemberRoutes() {
+function getFeatureRoutes() {
     const router = express.Router()
+
     router.get('/:id', retrieve)
     router.get('/', list)
     router.post('/', create)
@@ -36,4 +37,4 @@ async function del(req: Request, res: Response) {
     res.send(difference.toString())
 }
 
-export { getMemberRoutes }
+export { getFeatureRoutes }

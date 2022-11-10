@@ -38,7 +38,7 @@ export class ProjectModel {
                 this.environments = [];
             }
 
-            if (this.features) {
+            if (this.features: Response) {
                 this.features = this.features.map(ft => FeatureModel.fromObject(ft));
             } else {
                 this.features = [];

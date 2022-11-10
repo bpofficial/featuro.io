@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express'
 
-function getMemberRoutes() {
+function getEnvironmentRoutes() {
     const router = express.Router()
     router.get('/:id', retrieve)
     router.get('/', list)
@@ -36,4 +36,4 @@ async function del(req: Request, res: Response) {
     res.send(difference.toString())
 }
 
-export { getMemberRoutes }
+export { getEnvironmentRoutes }

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
@@ -28,6 +28,12 @@ export class FeatureModel {
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
+
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
 
     toDto() {
         return FeatureModel.toDto(this);
@@ -85,7 +91,9 @@ export class FeatureModel {
             environmentSettings: obj?.environmentSettings ? FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) : {},
             activeDefaultVariant: FeatureVariantModel.toDto(obj.activeDefaultVariant),
             inactiveVariant: FeatureVariantModel.toDto(obj.inactiveVariant),
-            impressions: obj?.impressions ? obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) : []
+            impressions: obj?.impressions ? obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) : [],
+            createdAt: obj?.createdAt?.toISOString?.() ?? null,
+            updatedAt: obj?.updatedAt?.toISOString?.() ?? null
         }
     }
 
