@@ -1,20 +1,25 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": false,
-    "target": "es2015",
-    "module": "commonjs",
-    "lib": ["esnext"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {}
-  },
-  "exclude": ["node_modules", "tmp"]
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": false,
+        "target": "es2015",
+        "module": "commonjs",
+        "lib": ["esnext"],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "esModuleInterop": true,
+        "baseUrl": ".",
+        "paths": {
+            "@nx-serverless-template/common": ["libs/common/src/index.ts"],
+            "@nx-serverless-template/models": ["libs/models/src/index.ts"],
+            "@nx-serverless-template/node-sdk": ["libs/node-sdk/src/index.ts"]
+        }
+    },
+    "exclude": ["node_modules", "tmp"]
 }

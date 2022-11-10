@@ -1,28 +1,28 @@
 {
-  "npmScope": "nx-serverless-template",
-  "affected": {
-    "defaultBase": "main"
-  },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
-      }
+    "npmScope": "nx-serverless-template",
+    "affected": {
+        "defaultBase": "main"
+    },
+    "tasksRunnerOptions": {
+        "default": {
+            "runner": "@nrwl/workspace/tasks-runners/default",
+            "options": {
+                "cacheableOperations": ["build", "lint", "test", "e2e"]
+            }
+        }
+    },
+    "workspaceLayout": {
+        "appsDir": "stacks"
+    },
+    "$schema": "./node_modules/nx/schemas/nx-schema.json",
+    "namedInputs": {
+        "default": ["{projectRoot}/**/*", "sharedGlobals"],
+        "sharedGlobals": [
+            "{workspaceRoot}/workspace.json",
+            "{workspaceRoot}/tsconfig.base.json",
+            "{workspaceRoot}/tslint.json",
+            "{workspaceRoot}/nx.json"
+        ],
+        "production": ["default", "!{projectRoot}/.eslintrc.json"]
     }
-  },
-  "workspaceLayout": {
-    "appsDir": "stacks"
-  },
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "namedInputs": {
-    "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": [
-      "{workspaceRoot}/workspace.json",
-      "{workspaceRoot}/tsconfig.base.json",
-      "{workspaceRoot}/tslint.json",
-      "{workspaceRoot}/nx.json"
-    ],
-    "production": ["default", "!{projectRoot}/.eslintrc.json"]
-  }
 }
