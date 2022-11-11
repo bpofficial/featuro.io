@@ -1,19 +1,13 @@
 {
     "version": 2,
     "projects": {
+        "authorizer": "stacks/authorizer",
         "common": "libs/common",
-        "environment-commands": "stacks/environment-commands",
-        "environment-queries": "stacks/environment-queries",
-        "feature-commands": "stacks/feature-commands",
-        "feature-queries": "stacks/feature-queries",
-        "impression-commands": "stacks/impression-commands",
-        "impression-queries": "stacks/impression-queries",
+        "environments": "stacks/environments",
         "models": "libs/models",
         "node-sdk": "libs/node-sdk",
-        "organisation-commands": "stacks/organisation-commands",
-        "organisation-queries": "stacks/organisation-queries",
-        "user-commands": "stacks/user-commands",
-        "user-queries": "stacks/user-queries"
+        "organisation": "stacks/organisation",
+        "projects": "stacks/projects"
     },
     "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

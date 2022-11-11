@@ -1,0 +1,107 @@
+service: organisations
+
+frameworkVersion: "3"
+
+package:
+    individually: true
+    excludeDevDependencies: true
+
+plugins:
+    - serverless-esbuild
+    - serverless-offline
+
+custom:
+    serviceName: organisations
+    currentStage: ${opt:stage, 'organisations'}
+    esbild:
+        bundle: true
+        minify: true
+        target: node16
+        packager: yarn
+        sourcemap: true
+        sourcesContent: false
+
+provider:
+    name: aws
+    runtime: nodejs16.x
+    region: ap-southeast-2
+    memorySize: 128
+    environment:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+    apiGateway:
+        restApiId:
+            'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
+        restApiRootResourceId:
+            'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
+        restApiResources:
+            'organisations':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-WorkstreamSummary-${self:custom.currentStage}
+
+functions:
+    createOrganisation:
+        handler: src/create-organisation/handler.createOrganisation
+        events:
+            - http:
+                  method: POST
+                  path: /api/v1/organisations
+                  authorizer:
+                      type: CUSTOM
+                      authorizerId:
+                          Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+resources:
+    Resources:
+        # API Gateway
+        ApiGatewayRestApi:
+            Type: AWS::ApiGateway::RestApi
+            Properties:
+                Name: ${self:custom.currentStage}-${self:custom.serviceName}
+
+        EndPointMapping:
+            Type: 'AWS::ApiGateway::BasePathMapping'
+            DependsOn: 'ApiGatewayDeployment${sls:instanceId}'
+            Properties:
+                BasePath: '/api/v1/organisations'
+                DomainName: ${ssm:/app/test/global/ApiDomainName, null}
+                RestApiId: !Ref ApiGatewayRestApi
+                Stage: ${self:custom.currentStage}
+
+        ApiGatewayAuthorizer:
+            Type: AWS::ApiGateway::Authorizer
+            Properties:
+                AuthorizerResultTtlInSeconds: 300
+                Name: Auth0Authorizer
+                RestApiId:
+                    Ref: ApiGatewayRestApi
+                Type: TOKEN
+                IdentitySource: method.request.header.Authorization
+                IdentityValidationExpression: ^[Bb]earer [-0-9a-zA-z\.]*$
+                AuthorizerUri:
+                    Fn::Join:
+                        - ""
+                        - - "arn:aws:apigateway:"
+                          - Ref: "AWS::Region"
+                          - ":lambda:path/2015-03-31/functions/"
+                          - Fn::ImportValue: ${self:custom.serviceName}-Auth0Authorizer-arn-${self:custom.currentStage}
+                          - "/invocations"
+
+    Outputs:
+        ApiGatewayRestApiId:
+            Value:
+                Ref: ApiGatewayRestApi
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
+
+        ApiGatewayRestApiRootResourceId:
+            Value:
+                Fn::GetAtt:
+                    - ApiGatewayRestApi
+                    - RootResourceId
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
+
+        ApiGatewayAuthorizerId:
+            Value:
+                Ref: ApiGatewayAuthorizer
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

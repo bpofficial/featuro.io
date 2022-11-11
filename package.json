@@ -40,6 +40,7 @@
         "@types/aws-lambda": "8.10.108",
         "@types/get-value": "^3",
         "@types/jest": "28.1.1",
+        "@types/jsonwebtoken": "^8",
         "@types/luxon": "^3",
         "@types/node": "16.11.7",
         "@types/serverless": "3.12.8",
@@ -79,7 +80,10 @@
     "packageManager": "yarn@3.2.4",
     "dependencies": {
         "get-value": "^3.0.1",
+        "jsonwebtoken": "^8.5.1",
+        "jwks-rsa": "^3.0.0",
         "luxon": "^3.1.0",
+        "mysql2": "^2.3.3",
         "stripe": "^10.17.0",
         "tslib": "^2.3.0",
         "typeorm": "^0.3.10"
