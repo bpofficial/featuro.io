@@ -46,6 +46,6 @@ resources:
         Auth0AuthorizationFunction:
             Description: Auth0 JWT Authorizor
             Value:
-                'Fn::GetAtt': [authorize, Arn]
+                'Fn::GetAtt': [AuthorizeLambdaFunction, Arn]
             Export:
-                Name: ${self:service}-Auth0Authorizer-arn-${self:custom.currentStage}
+                Name: Auth0Authorizer-arn-${self:custom.currentStage}

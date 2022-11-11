@@ -6,7 +6,7 @@ const AUDIENCE = process.env.AUDIENCE;
 const JWKS_URI = process.env.JWKS_URI;
 const TOKEN_ISSUER = process.env.TOKEN_ISSUER;
 
-export const authorize = async (event, _context, cb) => {
+export const authorize = async (event: any, _context: any, cb: Function) => {
     try {
         const token = event.authorizationToken.substring(7);
         const client = new Authorizer(TOKEN_ISSUER, JWKS_URI, AUDIENCE);
@@ -14,7 +14,7 @@ export const authorize = async (event, _context, cb) => {
         client.authorize(token)
             .then((result) => {
                 cb(null,
-                    AWSPolicyGenerator.generate(result.sub, 'Allow', event.methodArn));
+                    AWSPolicyGenerator.generate(result.sub, 'Allow', event.methodArn, result));
             })
             .catch(err => {
                 console.log(err);

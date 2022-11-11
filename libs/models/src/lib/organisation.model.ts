@@ -38,6 +38,11 @@ export class OrganisationModel {
         return OrganisationModel.toDto(this);
     }
 
+    validate(): true | any[] {
+        // name, subdomain
+        return true;
+    }
+
     constructor(obj?: Partial<OrganisationModel>) {
         if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
             Object.assign(this, obj);

@@ -8,7 +8,7 @@ export class Authorizer {
         private audience: string) {
     }
 
-    public authorize(token: string): Promise<any> {
+    public async authorize(token: string): Promise<jwt.JwtPayload> {
         let decoded: any = jwt.decode(token, { complete: true });
         return this.getKey(decoded.header.kid)
             .then(x => {
