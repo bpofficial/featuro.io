@@ -1,0 +1,51 @@
+service: authorization
+
+frameworkVersion: "3"
+
+package:
+    individually: true
+    excludeDevDependencies: true
+
+plugins:
+    - serverless-esbuild
+    - serverless-offline
+
+custom:
+    serviceName: authorization
+    currentStage: ${opt:stage, 'authorization'}
+    esbild:
+        bundle: true
+        minify: true
+        target: node16
+        packager: yarn
+        sourcemap: true
+        sourcesContent: false
+
+provider:
+    name: aws
+    runtime: nodejs16.x
+    region: ap-southeast-2
+    stackTags:
+        service: ${self:service}
+    tags:
+        service: ${self:service}
+    memorySize: 128
+
+functions:
+    authorize:
+        handler: src/handler.authorize
+        timeout: 30
+        memorySize: 512
+        environment:
+            AUDIENCE: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/AUDIENCE, null}
+            JWKS_URI: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/JWKS_URI, null}
+            TOKEN_ISSUER: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/TOKEN_ISSUER, null}
+
+resources:
+    Outputs:
+        Auth0AuthorizationFunction:
+            Description: Auth0 JWT Authorizor
+            Value:
+                'Fn::GetAtt': [authorize, Arn]
+            Export:
+                Name: ${self:service}-Auth0Authorizer-arn-${self:custom.currentStage}
