@@ -9,6 +9,10 @@ import { Schema } from './schema';
 import { addJest } from './jest-config';
 import { addWorkspaceConfig } from './workspace-config';
 
+function cap(val: string) {
+  return val[0].toUpperCase() + val.substring(1);
+}
+
 export default async (host: Tree, schema: Schema) => {
   const stackRoot = `stacks/${schema.name}`;
 
@@ -16,7 +20,7 @@ export default async (host: Tree, schema: Schema) => {
     host, // the virtual file system
     joinPathFragments(__dirname, './files'), // path to the file templates
     stackRoot, // destination path of the files
-    { ...schema, tmpl: '' } // config object to replace variable in file templates
+    { ...schema, tmpl: '', cap } // config object to replace variable in file templates
   );
 
   addWorkspaceConfig(host, schema.name, stackRoot);

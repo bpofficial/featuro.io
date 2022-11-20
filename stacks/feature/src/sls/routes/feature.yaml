@@ -1,0 +1,54 @@
+createFeature:
+    handler: src/features/create-feature/handler.createFeature
+    events:
+        - http:
+              method: POST
+              path: /api/v1/feature
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+updateFeature:
+    handler: src/feature/update-feature/handler.updateFeature
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/features/{featureId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+deleteFeature:
+    handler: src/feature/delete-feature/handler.deleteFeature
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/features/{featureId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+retrieveFeature:
+    handler: src/features/retrieve-feature/handler.retrieveFeature
+    events:
+        - http:
+              method: GET
+              path: /api/v1/features/{featureId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+listFeature:
+    handler: src/features/list-feature/handler.listFeature
+    events:
+        - http:
+              method: GET
+              path: /api/v1/features
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

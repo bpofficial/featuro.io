@@ -1,0 +1,53 @@
+createBilling:
+    handler: src/billings/create-billing/handler.createBilling
+    events:
+        - http:
+              method: POST
+              path: /api/v1/billing
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+updateBilling:
+    handler: src/billing/update-billing/handler.updateBilling
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/billings/{billingId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+deleteBilling:
+    handler: src/billing/delete-billing/handler.deleteBilling
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/billings/{billingId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+retrieveBilling:
+    handler: src/billings/retrieve-billing/handler.retrieveBilling
+    events:
+        - http:
+              method: GET
+              path: /api/v1/billings/{billingId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+listBilling:
+    handler: src/billings/list-billing/handler.listBilling
+    events:
+        - http:
+              method: GET
+              path: /api/v1/billings
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

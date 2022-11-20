@@ -1,0 +1,46 @@
+service: impressions
+
+frameworkVersion: '3'
+
+package:
+    individually: true
+    excludeDevDependencies: true
+
+plugins:
+    - serverless-esbuild
+    - serverless-offline
+
+custom:
+    serviceName: impressions
+    currentStage: ${opt:stage, 'impressions'}
+    esbild:
+        bundle: true
+        minify: true
+        target: node16
+        packager: yarn
+        sourcemap: true
+        sourcesContent: false
+
+provider:
+    name: aws
+    runtime: nodejs16.x
+    region: ap-southeast-2
+    memorySize: 128
+    environment:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+    apiGateway:
+        restApiId:
+            'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
+        restApiRootResourceId:
+            'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
+        restApiResources:
+            'impressions':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Impressions-${self:custom.currentStage}
+
+functions:
+    - ${file(./sls/routes/impressions.yaml)}
+
+resources:
+    - ${file(./sls/api.yaml)}
+    - ${file(./sls/routes.yaml)}
+    - ${file(./sls/outputs.yaml)}

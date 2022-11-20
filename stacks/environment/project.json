@@ -1,0 +1,55 @@
+{
+    "name": "environment",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "stacks/environment/src",
+    "targets": {
+        "build": {
+            "executor": "@nrwl/workspace:run-commands",
+            "options": {
+                "cwd": "stacks/environment",
+                "color": true,
+                "command": "sls package"
+            }
+        },
+        "serve": {
+            "executor": "@nrwl/workspace:run-commands",
+            "options": {
+                "cwd": "stacks/environment",
+                "color": true,
+                "command": "sls offline start"
+            }
+        },
+        "deploy": {
+            "executor": "@nrwl/workspace:run-commands",
+            "options": {
+                "cwd": "stacks/environment",
+                "color": true,
+                "command": "sls deploy"
+            }
+        },
+        "remove": {
+            "executor": "@nrwl/workspace:run-commands",
+            "options": {
+                "cwd": "stacks/environment",
+                "color": true,
+                "command": "sls remove"
+            }
+        },
+        "lint": {
+            "executor": "@nrwl/linter:eslint",
+            "options": {
+                "lintFilePatterns": ["stacks/environment/**/*.ts"]
+            }
+        },
+        "test": {
+            "executor": "@nrwl/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+            "options": {
+                "jestConfig": "stacks/environment/jest.config.ts",
+                "passWithNoTests": true
+            }
+        }
+    },
+    "tags": ["stack"]
+}

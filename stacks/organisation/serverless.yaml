@@ -38,9 +38,10 @@ provider:
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Organisations-${self:custom.currentStage}
 
 functions:
-  - ${file(./sls/functions.yaml)}
+  - ${file(./sls/routes/organisations.yaml)}
+  - ${file(./sls/routes/members.yaml)}
   
 resources:
   - ${file(./sls/api.yaml)}
   - ${file(./sls/routes.yaml)}
-  - ${file(./sls/routes.yaml)}
+  - ${file(./sls/outputs.yaml)}

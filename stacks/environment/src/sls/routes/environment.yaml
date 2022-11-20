@@ -1,0 +1,53 @@
+createEnvironment:
+    handler: src/environments/create-environment/handler.createEnvironment
+    events:
+        - http:
+              method: POST
+              path: /api/v1/environment
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+updateEnvironment:
+    handler: src/environment/update-environment/handler.updateEnvironment
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/environments/{environmentId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+deleteEnvironment:
+    handler: src/environment/delete-environment/handler.deleteEnvironment
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/environments/{environmentId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+retrieveEnvironment:
+    handler: src/environments/retrieve-environment/handler.retrieveEnvironment
+    events:
+        - http:
+              method: GET
+              path: /api/v1/environments/{environmentId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+listEnvironment:
+    handler: src/environments/list-environment/handler.listEnvironment
+    events:
+        - http:
+              method: GET
+              path: /api/v1/environments
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

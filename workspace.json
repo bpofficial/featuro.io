@@ -2,12 +2,15 @@
     "version": 2,
     "projects": {
         "authorizer": "stacks/authorizer",
+        "billing": "stacks/billing",
         "common": "libs/common",
-        "environments": "stacks/environments",
+        "environment": "stacks/environment",
+        "feature": "stacks/feature",
+        "impression": "stacks/impression",
         "models": "libs/models",
         "node-sdk": "libs/node-sdk",
         "organisation": "stacks/organisation",
-        "projects": "stacks/projects"
+        "project": "stacks/project"
     },
     "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

@@ -8,6 +8,5 @@ export * from './feature.model'
 export * from './impression.model'
 export * from './organisation-billing.model'
 export * from './organisation-limits.model'
-export * from './organisation-member.model'
 export * from './organisation.model'
 export * from './project.model';

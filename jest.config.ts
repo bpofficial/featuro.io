@@ -9,5 +9,7 @@ export default {
         '<rootDir>/stacks/organisation',
         '<rootDir>/stacks/authorizer',
         '<rootDir>/stacks/projects',
+        '<rootDir>/stacks/project',
+        '<rootDir>/stacks/billing',
     ],
 };

@@ -1,0 +1,27 @@
+Resources:
+    Outputs:
+        ApiGatewayRestApiId:
+            Value:
+                Ref: ApiGatewayRestApi
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
+
+        ApiGatewayRestApiRootResourceId:
+            Value:
+                Fn::GetAtt:
+                    - ApiGatewayRestApi
+                    - RootResourceId
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
+
+        ApiGatewayAuthorizerId:
+            Value:
+                Ref: ApiGatewayAuthorizer
+            Export:
+                Name: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+        ApiGatewayResourceAgentWorkstreamSyncPath:
+            Value:
+                Ref: ApiGatewayResourceBillingsPath
+            Export:
+                Name: ${self:custom.serviceName}-ApiPath-Billings-${self:custom.currentStage}

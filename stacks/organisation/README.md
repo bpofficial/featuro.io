@@ -1,7 +1,16 @@
-# organisation
+# Organisation Stack
 
-This stack was generated with [Nx](https://nx.dev).
+### Endpoints
+- `POST` `/api/v1/organisations` in `/src/organisations/create-organisation`
+- `PUT` `/api/v1/organisations/{organisationId}` in `/src/organisations/update-organisation`
+- `GET` `/api/v1/organisations/{organisationId}` in `/src/organisations/retrieve-organisation`
+- `GET` `/api/v1/organisations/@me` in `/src/organisations/retrieve-organisation`
 
-## Running unit tests
+#### Create Organisation
 
-Run `nx test organisation` to execute the unit tests via [Jest](https://jestjs.io).
+
+#### Update Organisation
+
+
+
+#### Retrieve Organisation

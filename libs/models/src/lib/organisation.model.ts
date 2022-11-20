@@ -2,7 +2,6 @@ import { DeepPartial, isObjectLike } from '@featuro.io/common';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
-import { OrganisationMemberModel } from './organisation-member.model';
 import { ProjectModel } from './project.model';
 
 @Entity()
@@ -29,9 +28,6 @@ export class OrganisationModel {
     @OneToOne(() => OrganisationLimitsModel, limits => limits.organisation)
     limits: OrganisationLimitsModel;
 
-    @OneToMany(() => OrganisationMemberModel, mem => mem.organisation)
-    members: OrganisationMemberModel[];
-
     @OneToMany(() => ProjectModel, proj => proj.id)
     projects: ProjectModel[];
 
@@ -51,7 +47,7 @@ export class OrganisationModel {
     /**
      * Useful for merging in an update
      */
-    merge(obj: DeepPartial<OrganisationModel>) {
+    merge(obj: DeepPartial<OrganisationModel>, deep = false) {
         if (!isObjectLike(obj)) return this;
 
         // Disallowed fields
@@ -66,11 +62,12 @@ export class OrganisationModel {
         if (obj.name) this.name = obj.name;
         if (obj.ownerId) this.ownerId = obj.ownerId;
 
-        // deep-merging fields
-        if (obj.billing) this.billing.merge(obj.billing);
-        if (obj.limits) this.limits.merge(obj.limits);
-        if (obj.members) this.members = OrganisationMemberModel.mergeMany(this.members, obj.members);
-        if (obj.projects) this.projects = ProjectModel.mergeMany(this.projects, obj.projects);
+        if (deep) {
+            // deep-merging fields
+            if (obj.billing) this.billing.merge(obj.billing);
+            if (obj.limits) this.limits.merge(obj.limits);
+            if (obj.projects) this.projects = ProjectModel.mergeMany(this.projects, obj.projects);
+        }
 
         return this;
     }
@@ -88,12 +85,6 @@ export class OrganisationModel {
                 this.projects = this.projects.map(proj => ProjectModel.fromObject(proj))
             } else {
                 this.projects = [];
-            }
-
-            if (this.members) {
-                this.members = this.members.map(mem => OrganisationMemberModel.fromObject(mem))
-            } else {
-                this.members = [];
             }
 
             this.billing = OrganisationBillingModel.fromObject(this.billing);

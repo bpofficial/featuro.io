@@ -1,0 +1,32 @@
+createOrganisation:
+    handler: src/organisations/create-organisation/handler.createOrganisation
+    events:
+        - http:
+              method: POST
+              path: /api/v1/organisations
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+updateOrganisation:
+    handler: src/organisations/update-organisation/handler.updateOrganisation
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/organisations/{organisationId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+retrieveOrganisation:
+    handler: src/organisations/retrieve-organisation/handler.retrieveOrganisation
+    events:
+        - http:
+              method: GET
+              path: /api/v1/organisations/{organisationId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

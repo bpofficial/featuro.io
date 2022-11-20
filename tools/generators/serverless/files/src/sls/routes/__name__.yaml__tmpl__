@@ -1,0 +1,53 @@
+create<%= cap(name) %>:
+    handler: src/<%= name %>s/create-<%= name %>/handler.create<%= cap(name) %>
+    events:
+        - http:
+              method: POST
+              path: /api/v1/<%= name %>
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+update<%= cap(name) %>:
+    handler: src/<%= name %>/update-<%= name %>/handler.update<%= cap(name) %>
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/<%= name %>s/{<%= name %>Id}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+delete<%= cap(name) %>:
+    handler: src/<%= name %>/delete-<%= name %>/handler.delete<%= cap(name) %>
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/<%= name %>s/{<%= name %>Id}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+retrieve<%= cap(name) %>:
+    handler: src/<%= name %>s/retrieve-<%= name %>/handler.retrieve<%= cap(name) %>
+    events:
+        - http:
+              method: GET
+              path: /api/v1/<%= name %>s/{<%= name %>Id}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+list<%= cap(name) %>:
+    handler: src/<%= name %>s/list-<%= name %>/handler.list<%= cap(name) %>
+    events:
+        - http:
+              method: GET
+              path: /api/v1/<%= name %>s
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
