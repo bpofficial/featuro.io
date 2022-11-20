@@ -1,15 +1,15 @@
 Resources:
     # PATH /billings
-    ApiGatewayResourceBillingsPath:
+    ApiGatewayResourceBillingPath:
         Type: AWS::ApiGateway::Resource
         Properties:
             ParentId:
                 Fn::GetAtt: [ApiGatewayRestApi, RootResourceId]
-            PathPart: 'billings'
+            PathPart: 'billing'
             RestApiId:
                 Ref: ApiGatewayRestApi
 
-    ApiGatewayResourceBillingsOptions:
+    ApiGatewayResourceBillingOptions:
         Type: AWS::ApiGateway::Method
         Properties:
             AuthorizationType: 'NONE'
@@ -34,6 +34,6 @@ Resources:
                       ResponseTemplates:
                           application/json: ''
             ResourceId:
-                Ref: ApiGatewayResourceBillingsPath
+                Ref: ApiGatewayResourceBillingPath
             RestApiId:
                 Ref: ApiGatewayRestApi

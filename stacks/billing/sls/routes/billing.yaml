@@ -1,0 +1,6 @@
+receiveWebhook:
+    handler: src/billing/receive-webhook/handler.receiveWebhook
+    events:
+        - http:
+              method: POST
+              path: /api/v1/billing

@@ -1,0 +1,1 @@
+export async function updateSubscription(email: string, subscriptionId: string, priceId: string) {}

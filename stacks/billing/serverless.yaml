@@ -1,4 +1,4 @@
-service: billings
+service: billing
 
 frameworkVersion: '3'
 
@@ -11,8 +11,8 @@ plugins:
     - serverless-offline
 
 custom:
-    serviceName: billings
-    currentStage: ${opt:stage, 'billings'}
+    serviceName: billing
+    currentStage: ${opt:stage, 'billing'}
     esbild:
         bundle: true
         minify: true
@@ -34,11 +34,11 @@ provider:
         restApiRootResourceId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
         restApiResources:
-            'billings':
-                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Billings-${self:custom.currentStage}
+            'billing':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Billing-${self:custom.currentStage}
 
 functions:
-    - ${file(./sls/routes/billings.yaml)}
+    - ${file(./sls/routes/billing.yaml)}
 
 resources:
     - ${file(./sls/api.yaml)}

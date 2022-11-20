@@ -23,7 +23,7 @@ delete<%= cap(name) %>:
     handler: src/<%= name %>/delete-<%= name %>/handler.delete<%= cap(name) %>
     events:
         - http:
-              method: PUT
+              method: DELETE
               path: /api/v1/<%= name %>s/{<%= name %>Id}
               authorizer:
                   type: CUSTOM

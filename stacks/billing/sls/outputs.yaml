@@ -22,6 +22,6 @@ Resources:
 
         ApiGatewayResourceAgentWorkstreamSyncPath:
             Value:
-                Ref: ApiGatewayResourceBillingsPath
+                Ref: ApiGatewayResourceBillingPath
             Export:
-                Name: ${self:custom.serviceName}-ApiPath-Billings-${self:custom.currentStage}
+                Name: ${self:custom.serviceName}-ApiPath-Billing-${self:custom.currentStage}

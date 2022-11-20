@@ -9,27 +9,6 @@ createImpression:
                   authorizerId:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
-updateImpression:
-    handler: src/impression/update-impression/handler.updateImpression
-    events:
-        - http:
-              method: PUT
-              path: /api/v1/impressions/{impressionId}
-              authorizer:
-                  type: CUSTOM
-                  authorizerId:
-                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
-deleteImpression:
-    handler: src/impression/delete-impression/handler.deleteImpression
-    events:
-        - http:
-              method: PUT
-              path: /api/v1/impressions/{impressionId}
-              authorizer:
-                  type: CUSTOM
-                  authorizerId:
-                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
-
 retrieveImpression:
     handler: src/impressions/retrieve-impression/handler.retrieveImpression
     events:

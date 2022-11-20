@@ -38,7 +38,7 @@ provider:
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-<%= cap(name) %>s-${self:custom.currentStage}
 
 functions:
-  - ${file(./sls/routes/<%= name %>s.yaml)}
+  - ${file(./sls/routes/<%= name %>.yaml)}
   
 resources:
   - ${file(./sls/api.yaml)}

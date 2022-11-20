@@ -1,52 +1,52 @@
-createBilling:
-    handler: src/billings/create-billing/handler.createBilling
+createProject:
+    handler: src/projects/create-project/handler.createProject
     events:
         - http:
               method: POST
-              path: /api/v1/billing
+              path: /api/v1/project
               authorizer:
                   type: CUSTOM
                   authorizerId:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
-updateBilling:
-    handler: src/billing/update-billing/handler.updateBilling
+updateProject:
+    handler: src/project/update-project/handler.updateProject
     events:
         - http:
               method: PUT
-              path: /api/v1/billings/{billingId}
+              path: /api/v1/projects/{projectId}
               authorizer:
                   type: CUSTOM
                   authorizerId:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
-deleteBilling:
-    handler: src/billing/delete-billing/handler.deleteBilling
+deleteProject:
+    handler: src/project/delete-project/handler.deleteProject
     events:
         - http:
-              method: PUT
-              path: /api/v1/billings/{billingId}
-              authorizer:
-                  type: CUSTOM
-                  authorizerId:
-                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
-
-retrieveBilling:
-    handler: src/billings/retrieve-billing/handler.retrieveBilling
-    events:
-        - http:
-              method: GET
-              path: /api/v1/billings/{billingId}
+              method: DELETE
+              path: /api/v1/projects/{projectId}
               authorizer:
                   type: CUSTOM
                   authorizerId:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
-listBilling:
-    handler: src/billings/list-billing/handler.listBilling
+retrieveProject:
+    handler: src/projects/retrieve-project/handler.retrieveProject
     events:
         - http:
               method: GET
-              path: /api/v1/billings
+              path: /api/v1/projects/{projectId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+listProject:
+    handler: src/projects/list-project/handler.listProject
+    events:
+        - http:
+              method: GET
+              path: /api/v1/projects
               authorizer:
                   type: CUSTOM
                   authorizerId:
