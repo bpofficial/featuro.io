@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureTargetModel } from "./feature-target.model";
 import get from 'get-value';
 import { DateTime } from 'luxon';
+import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 
 @Entity()
 export class FeatureConditionModel {
@@ -24,6 +25,32 @@ export class FeatureConditionModel {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
+    toDto() {
+        return FeatureConditionModel.toDto(this);
+    }
+
+    merge(obj: DeepPartial<FeatureConditionModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed fields
+        if (obj.id) delete obj.id;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Direct-update fields
+        if (obj.operator) this.operator = obj.operator;
+        if (obj.staticOperand) this.staticOperand = obj.staticOperand;
+
+        // Deep-merging fields
+        if (obj.target) this.target.merge(obj.target);
+
+        return this;
+    }
 
     eval(valueA: any, valueB: any, type: any, op: any) {
         switch (type) {
@@ -123,16 +150,21 @@ export class FeatureConditionModel {
         return false;
     }
 
-    toDto() {
-        return FeatureConditionModel.toDto(this);
-    }
-
-    constructor(obj?: Partial<FeatureConditionModel>) {
+    constructor(obj?: DeepPartial<FeatureConditionModel>) {
         if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
             Object.assign(this, obj);
 
             this.target = FeatureTargetModel.fromObject(this.target);
         }
+    }
+
+    static mergeMany(a: DeepPartial<FeatureConditionModel[]> = [], b: DeepPartial<FeatureConditionModel>[] = []): FeatureConditionModel[] {
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        return joinArraysByIdWithAssigner<FeatureConditionModel>(FeatureConditionModel.merge, a, b);
+    }
+
+    static merge(a: DeepPartial<FeatureConditionModel>, b: DeepPartial<FeatureConditionModel>) {
+        return new FeatureConditionModel(a).merge(b);
     }
 
     static fromObject(result: any) {

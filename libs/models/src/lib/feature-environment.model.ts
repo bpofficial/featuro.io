@@ -1,4 +1,5 @@
-import { ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
+import { CreateDateColumn, DeleteDateColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
 
@@ -13,6 +14,32 @@ export class FeatureEnvironmentModel {
     @OneToMany(() => FeatureConditionSetModel, cd => cd.id, { nullable: true })
     conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
+    merge(obj: DeepPartial<FeatureEnvironmentModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed fields
+        if (obj.id) delete obj.id;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Deep-merging fields
+        if (obj.environment) this.environment.merge(obj.environment);
+        if (obj.conditionSets) this.conditionSets = 
+            FeatureConditionSetModel.mergeMany(this.conditionSets, obj.conditionSets);
+
+        return this;
+    }
+
     evaluate(context: Record<string, any>) {
         if (this.conditionSets) {
             const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
@@ -23,8 +50,8 @@ export class FeatureEnvironmentModel {
         return null;
     }
 
-    constructor(obj?: Partial<FeatureEnvironmentModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+    constructor(obj?: DeepPartial<FeatureEnvironmentModel>) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
             if (this.conditionSets) {
@@ -35,6 +62,15 @@ export class FeatureEnvironmentModel {
 
             this.environment = EnvironmentModel.fromObject(this.environment);
         }
+    }
+
+    static mergeMany(a: DeepPartial<FeatureEnvironmentModel[]> = [], b: DeepPartial<FeatureEnvironmentModel>[] = []): FeatureEnvironmentModel[] {
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        return joinArraysByIdWithAssigner<FeatureEnvironmentModel>(FeatureEnvironmentModel.merge, a, b);
+    }
+
+    static merge(a: DeepPartial<FeatureEnvironmentModel>, b: DeepPartial<FeatureEnvironmentModel>) {
+        return new FeatureEnvironmentModel(a).merge(b);
     }
 
     static fromObject(result: any) {

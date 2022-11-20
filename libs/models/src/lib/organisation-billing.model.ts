@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
+import { DeepPartial, isObjectLike } from '@featuro.io/common';
 
 @Entity()
 export class OrganisationBillingModel {
@@ -21,12 +22,40 @@ export class OrganisationBillingModel {
     @OneToOne(() => OrganisationModel, org => org.billing)
     organisation: OrganisationModel;
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
     toDto() {
         return OrganisationBillingModel.toDto(this);
     }
 
+    merge(obj: DeepPartial<OrganisationBillingModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed fields
+        if (obj.id) delete obj.id;
+        if (obj.organisation) delete obj.organisation;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Direct-update fields
+        if (obj.financial) this.financial = obj.financial;
+        if (obj.stripePriceId) this.stripePriceId = obj.stripePriceId;
+        if (obj.stripeCustomerId) this.stripeCustomerId = obj.stripeCustomerId;
+        if (obj.stripeSubscriptionId) this.stripeSubscriptionId = obj.stripeSubscriptionId;
+
+        return this;
+    }
+
     constructor(obj?: Partial<OrganisationBillingModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
             if (obj.organisation) {
                 this.organisation = OrganisationModel.fromObject(this.organisation);

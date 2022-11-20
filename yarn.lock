@@ -2884,6 +2884,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/is-uuid@npm:^1":
+  version: 1.0.0
+  resolution: "@types/is-uuid@npm:1.0.0"
+  checksum: f3f211b37ef7c1f290d7129455294e64be7f02e93d8e46eb5059fa2556b53abe1db228c33c0ef5ffa33f08d7df90ef2b4c76bf95c1cc1c41be3f0455164cc69b
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.4
   resolution: "@types/istanbul-lib-coverage@npm:2.0.4"
@@ -9199,6 +9206,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"is-uuid@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "is-uuid@npm:1.0.2"
+  checksum: 53eb3544e4416ee2f170e204a319bf686768087d2de1f061f7261decd6b8e2cc16c83687fb081d3aac398c657c8e461ad43e3f664d3155b866db4016697624a3
+  languageName: node
+  linkType: hard
+
 "is-weakref@npm:^1.0.2":
   version: 1.0.2
   resolution: "is-weakref@npm:1.0.2"
@@ -12211,6 +12225,7 @@ __metadata:
     "@nrwl/workspace": 15.0.13
     "@types/aws-lambda": 8.10.108
     "@types/get-value": ^3
+    "@types/is-uuid": ^1
     "@types/jest": 28.1.1
     "@types/jsonwebtoken": ^8
     "@types/luxon": ^3
@@ -12225,6 +12240,7 @@ __metadata:
     eslint-config-prettier: 8.5.0
     get-value: ^3.0.1
     husky: 8.0.2
+    is-uuid: ^1.0.2
     jest: 28.1.1
     jest-environment-jsdom: 28.1.1
     jsonwebtoken: ^8.5.1

@@ -1,4 +1,5 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
@@ -24,12 +25,40 @@ export class ProjectModel {
     @ManyToOne(() => OrganisationModel, org => org.projects)
     organisation: OrganisationModel;
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
     toDto() {
         return ProjectModel.toDto(this)
     }
 
-    constructor(obj?: Partial<ProjectModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+    merge(obj: DeepPartial<ProjectModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed fields
+        if (obj.id) delete obj.id;
+        if (obj.organisation) delete obj.organisation;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Direct-update fields
+        if (obj.key) this.key = obj.key;
+        if (obj.name) this.name = obj.name;
+        if (obj.environments) this.environments = EnvironmentModel.mergeMany(this.environments, obj.environments);
+        if (obj.features) this.features = FeatureModel.mergeMany(this.features, obj.features);
+
+        return this;
+    }
+
+    constructor(obj?: DeepPartial<ProjectModel>) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
             if (this.environments) {
@@ -48,6 +77,15 @@ export class ProjectModel {
                 this.organisation = OrganisationModel.fromObject(this.organisation)
             }
         }
+    }
+
+    static mergeMany(a: DeepPartial<ProjectModel[]> = [], b: DeepPartial<ProjectModel>[] = []): ProjectModel[] {
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        return joinArraysByIdWithAssigner<ProjectModel>(ProjectModel.merge, a, b);
+    }
+
+    static merge(a: DeepPartial<ProjectModel>, b: DeepPartial<ProjectModel>) {
+        return new ProjectModel(a).merge(b);
     }
 
     static fromObject(result: any) {

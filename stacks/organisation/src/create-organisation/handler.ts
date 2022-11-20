@@ -1,10 +1,11 @@
-import { APIGatewayProxyHandler } from 'aws-lambda';
-import { BadRequest, createConnection, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
+import { BadRequest, createConnection, Created, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { OrganisationBillingModel, OrganisationLimitsModel, OrganisationMemberModel, OrganisationModel } from '@featuro.io/models';
+import { stripe } from '@featuro.io/stripe';
 
 let connection: DataSource;
-export const createOrganisation: APIGatewayProxyHandler = async (event, _context) => {
+export const createOrganisation: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
     try {
         connection = connection || await createConnection();
         const repos = {
@@ -32,20 +33,39 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             return BadRequest(vResult)
         }
 
+        const price = await stripe.prices.retrieve(body.priceId, { expand: ['product'] });
+        if (!price) {
+            return BadRequest('Plan does not exist.');
+        }
+
         let newOrganisation = await repos.organisations.save(org);
         newOrganisation = OrganisationModel.fromObject(newOrganisation);
+
+        const customer = await stripe.customers.create({
+            name: org.name,
+            email: identity.email,
+            metadata: { orgId: newOrganisation.id }
+        });
+
+        const subscription = await stripe.subscriptions.create({
+            customer: customer.id,
+            items: [{ price: body.priceId }],
+            expand: ['latest_invoice.payment_intent'],
+            trial_from_plan: true, // 14 days trial
+        });
 
         const billing = new OrganisationBillingModel({
             financial: true,
             organisation: newOrganisation,
             stripePriceId: body.priceId,
-            stripeCustomerId: body.customerId,
-            stripeSubscriptionId: null // will be set via webhook
+            stripeCustomerId: customer.id,
+            stripeSubscriptionId: subscription.id
         });
         
         const limits = new OrganisationLimitsModel({
             organisation: newOrganisation
         });
+        limits.parseStripePriceMetadata((price.product as any).metadata);
 
         const owner = new OrganisationMemberModel({
             id: userId,
@@ -59,8 +79,9 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             repos.members.save(owner)
         ])
 
-        return Ok(newOrganisation.toDto())
+        return Created(newOrganisation.toDto())
     } catch (err) {
+        console.debug(err)
         return InternalServerError(err.message);
     }
 };

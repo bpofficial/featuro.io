@@ -1,4 +1,6 @@
-import { Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
+import { DetailedPeerCertificate } from "tls";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
@@ -9,10 +11,10 @@ export class FeatureModel {
     id: string;
 
     @Column()
-    name: string;
+    key: string;
 
     @Column()
-    key: string;
+    name: string;
 
     @Column({ default: false })
     active: boolean;
@@ -29,8 +31,41 @@ export class FeatureModel {
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
     toDto() {
         return FeatureModel.toDto(this);
+    }
+
+    merge(obj: DeepPartial<FeatureModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed update fields
+        if (obj.id) delete obj.id;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Direct-update fields
+        if (obj.key) this.key = obj.key;
+        if (obj.name) this.name = obj.name;
+        if (obj.active) this.active = obj.active;
+
+        // Deep-merging fields
+        if (obj.environmentSettings) this.environmentSettings = 
+            FeatureEnvironmentModel.mergeMany(this.environmentSettings, obj.environmentSettings);
+        if (obj.activeDefaultVariant) this.activeDefaultVariant.merge(obj.activeDefaultVariant);
+        if (obj.inactiveVariant) this.inactiveVariant.merge(obj.inactiveVariant);
+        if (obj.impressions) this.impressions = FeatureImpressionModel.mergeMany(this.impressions, obj.impressions);
+
+        return this;
     }
 
     evaluate(environment: string, context?: Record<string, any>) {
@@ -44,8 +79,8 @@ export class FeatureModel {
         }
     }
 
-    constructor(obj: Partial<FeatureModel>) {
-        if (typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+    constructor(obj: DeepPartial<FeatureModel>) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
             if (this.environmentSettings) {
@@ -65,6 +100,15 @@ export class FeatureModel {
             this.activeDefaultVariant = FeatureVariantModel.fromObject(this.activeDefaultVariant);
             this.inactiveVariant = FeatureVariantModel.fromObject(this.inactiveVariant);
         }
+    }
+
+    static mergeMany(a: DeepPartial<FeatureModel[]> = [], b: DeepPartial<FeatureModel>[] = []): FeatureModel[] {
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        return joinArraysByIdWithAssigner<FeatureModel>(FeatureModel.merge, a, b);
+    }
+
+    static merge(a: DeepPartial<FeatureModel>, b: DeepPartial<FeatureModel>) {
+        return new FeatureModel(a).merge(b);
     }
 
     static fromObject(result: any) {

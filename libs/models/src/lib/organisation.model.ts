@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne } from 'typeorm';
+import { DeepPartial, isObjectLike } from '@featuro.io/common';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
 import { OrganisationMemberModel } from './organisation-member.model';
@@ -34,8 +35,44 @@ export class OrganisationModel {
     @OneToMany(() => ProjectModel, proj => proj.id)
     projects: ProjectModel[];
 
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
+
     toDto() {
         return OrganisationModel.toDto(this);
+    }
+
+    /**
+     * Useful for merging in an update
+     */
+    merge(obj: DeepPartial<OrganisationModel>) {
+        if (!isObjectLike(obj)) return this;
+
+        // Disallowed fields
+        if (obj.id) delete obj.id;
+        if (obj.auth0OrganisationId) delete obj.auth0OrganisationId;
+        if (obj.subdomain) delete obj.subdomain;
+        if (obj.createdAt) delete obj.createdAt;
+        if (obj.updatedAt) delete obj.updatedAt;
+        if (obj.deletedAt) delete obj.deletedAt;
+
+        // Direct-update fields
+        if (obj.name) this.name = obj.name;
+        if (obj.ownerId) this.ownerId = obj.ownerId;
+
+        // deep-merging fields
+        if (obj.billing) this.billing.merge(obj.billing);
+        if (obj.limits) this.limits.merge(obj.limits);
+        if (obj.members) this.members = OrganisationMemberModel.mergeMany(this.members, obj.members);
+        if (obj.projects) this.projects = ProjectModel.mergeMany(this.projects, obj.projects);
+
+        return this;
     }
 
     validate(): true | any[] {
@@ -44,7 +81,7 @@ export class OrganisationModel {
     }
 
     constructor(obj?: Partial<OrganisationModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
             if (this.projects) {
