@@ -3,7 +3,7 @@ import { Stripe } from "stripe";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
 
-@Entity()
+@Entity('org_limits')
 export class OrganisationLimitsModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -11,16 +11,16 @@ export class OrganisationLimitsModel {
     @OneToOne(() => OrganisationModel, org => org.billing)
     organisation: OrganisationModel;
 
-    @Column()
+    @Column('int')
     members: number;
 
-    @Column()
+    @Column('int')
     projects: number;
 
-    @Column()
+    @Column('int')
     environments: number;
 
-    @Column()
+    @Column('int')
     features: number;
 
     @CreateDateColumn()

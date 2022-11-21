@@ -2,12 +2,12 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToOne, PrimaryGe
 import { OrganisationModel } from "./organisation.model";
 import { DeepPartial, isObjectLike } from '@featuro.io/common';
 
-@Entity()
+@Entity('org_billing')
 export class OrganisationBillingModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ default: false })
+    @Column('bool', { default: false })
     financial: boolean;
 
     @Column({ nullable: true, default: null })
@@ -18,6 +18,9 @@ export class OrganisationBillingModel {
 
     @Column({ nullable: true, default: null })
     stripeSubscriptionId: string;
+
+    @Column('bool', { default: true })
+    isOnboarding: boolean;
 
     @OneToOne(() => OrganisationModel, org => org.billing)
     organisation: OrganisationModel;
@@ -50,6 +53,7 @@ export class OrganisationBillingModel {
         if (obj.stripePriceId) this.stripePriceId = obj.stripePriceId;
         if (obj.stripeCustomerId) this.stripeCustomerId = obj.stripeCustomerId;
         if (obj.stripeSubscriptionId) this.stripeSubscriptionId = obj.stripeSubscriptionId;
+        if (obj.isOnboarding) this.isOnboarding = obj.isOnboarding;
 
         return this;
     }
@@ -69,12 +73,20 @@ export class OrganisationBillingModel {
 
     static toDto(obj?: Partial<OrganisationBillingModel>, includeSensitive = false) {
         if (!obj) return null;
-        if (!includeSensitive) return {};
+        
+        if (!includeSensitive) {
+            return { 
+                financial: obj?.financial,
+                isOnboarding: obj?.isOnboarding
+            };
+        }
+
         return {
             financial: obj?.financial,
             stripePriceId: obj?.stripePriceId,
             stripeCustomerId: obj?.stripeCustomerId,
             stripeSubscriptionId: obj?.stripeSubscriptionId,
+            isOnboarding: obj?.isOnboarding
         }
     }
 

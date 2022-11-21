@@ -1,4 +1,4 @@
-service: organisations
+service: organisation
 
 frameworkVersion: "3"
 
@@ -8,18 +8,28 @@ package:
 
 plugins:
     - serverless-esbuild
+    - serverless-offline-ssm
     - serverless-offline
 
 custom:
-    serviceName: organisations
-    currentStage: ${opt:stage, 'organisations'}
-    esbild:
+    serviceName: organisation
+    currentStage: ${opt:stage, 'organisation'}
+    esbuild:
         bundle: true
         minify: true
         target: node16
         packager: yarn
         sourcemap: true
         sourcesContent: false
+        plugins: esbuild.plugins.js
+    nodeEnv:
+       organisation: development
+    serverless-offline-ssm:
+        stages:
+            - ${self:custom.serviceName}
+        ssm:
+            '/app/organisation/organisation/STRIPE_API_KEY': 'test-key'
+            '/app/organisation/organisation/DB_URI': 'mysql://root:password@localhost:3306/featuro'
 
 provider:
     name: aws
@@ -28,7 +38,9 @@ provider:
     memorySize: 128
     environment:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
-        STRIPE_API_KEY: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/STRIPE_API_KEY, null}
+        STRIPE_API_KEY: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/STRIPE_API_KEY}
+        DB_URI: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/DB_URI}
+        NODE_ENV: ${self:custom.nodeEnv.${self:custom.currentStage}, 'production'} # Used for DB syncing, anything outside of local is 'production'
     apiGateway:
         restApiId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
@@ -39,8 +51,7 @@ provider:
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Organisations-${self:custom.currentStage}
 
 functions:
-  - ${file(./sls/routes/organisations.yaml)}
-  - ${file(./sls/routes/members.yaml)}
+  - ${file(./sls/routes/organisation.yaml)}
   
 resources:
   - ${file(./sls/api.yaml)}

@@ -1,6 +1,7 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
+@Entity('feature_variants')
 export class FeatureVariantModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -14,7 +15,7 @@ export class FeatureVariantModel {
     @Column()
     description: string;
 
-    @Column({ default: false })
+    @Column('bool', { default: false })
     isDefaultVariant: boolean;
 
     @CreateDateColumn()

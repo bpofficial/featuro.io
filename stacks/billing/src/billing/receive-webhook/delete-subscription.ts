@@ -1,1 +1,0 @@
-export async function deleteSubscription(email: string) {}

@@ -13,14 +13,14 @@ plugins:
 custom:
     serviceName: <%= name %>s
     currentStage: ${opt:stage, '<%= name %>s'}
-    esbild:
+    esbuild:
         bundle: true
         minify: true
         target: node16
         packager: yarn
         sourcemap: true
         sourcesContent: false
-
+        plugins: esbuild.plugins.js
 provider:
     name: aws
     runtime: nodejs16.x

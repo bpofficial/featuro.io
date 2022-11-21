@@ -4,7 +4,7 @@ import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
 import { ProjectModel } from './project.model';
 
-@Entity()
+@Entity('orgs')
 export class OrganisationModel {
 
     @PrimaryGeneratedColumn('uuid')

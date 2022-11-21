@@ -1,8 +1,10 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { InternalServerError, Ok } from '@featuro.io/common';
 import { stripe } from '@featuro.io/stripe';
-import { updateSubscription } from './update-subscription';
-import { deleteSubscription } from './delete-subscription';
+import { updateSubscription } from './handlers/update-subscription';
+import { deleteSubscription } from './handlers/delete-subscription';
+import { updatePriceData } from './handlers';
+import Stripe from 'stripe';
 
 export const receiveWebhook: APIGatewayProxyHandler = async (
     event,
@@ -26,25 +28,25 @@ export const receiveWebhook: APIGatewayProxyHandler = async (
         const customerId = hookData?.customer;
         const priceId = hookData?.plan?.id;
     
-        let customerEmail: string;
-        customerEmail = hookData?.['customer_details']?.email;
-        if (!customerEmail) {
-            const customer = await stripe.customers.retrieve(customerId);
-            if (customer.deleted) {
-                throw new Error('Customer deleted');
-            } else {
-                customerEmail = (customer.object as any).email;
-            }
+        let organisationId: string;
+        const customer = await stripe.customers.retrieve(customerId);
+        if (customer && customer.deleted) {
+            throw new Error('Customer deleted');
+        } else {
+            organisationId = (customer?.object as unknown as Stripe.Customer)?.metadata?.organisationId;
         }
     
         switch (eventType) {
             case 'customer.subscription.created':
             case 'customer.subscription.updated':
-                await updateSubscription(customerEmail, subscriptionId, priceId);
+                await updateSubscription(organisationId, subscriptionId, priceId);
                 break;
             case 'customer.subscription.deleted':
-                await deleteSubscription(customerEmail);
+                await deleteSubscription(organisationId);
                 break;
+            case 'price.updated':
+                await updatePriceData(hookData);
+                break
             default:
                 console.log('Unhandled event type');
                 console.log(hookData);

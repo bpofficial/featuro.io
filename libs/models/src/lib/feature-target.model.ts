@@ -1,7 +1,7 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+@Entity('feature_targets')
 export class FeatureTargetModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -16,14 +16,14 @@ export class FeatureTargetModel {
     owner: string | null;
 
     @Column({ nullable: true })
-    project: string | null;
+    project: string | null; // ??
 
     // This is the dot path used to find a value in the given api/sdk context.
     @Column({ nullable: true })
     valueKey: string | null;
 
-    @Column({ enum: ['number', 'date', 'string'] })
-    type: 'number' | 'date' | 'string';
+    @Column({ enum: ['number', 'date', ], type: 'enum' })
+    type: 'number' | 'date' | 'string' ;
 
     @Column({ default: false })
     caseSensitive: boolean;

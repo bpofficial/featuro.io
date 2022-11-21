@@ -15,10 +15,7 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
         }
 
         const identity = event.requestContext.authorizer?.context;
-
-        if (!identity) {
-            return Unauthorized();
-        }
+        if (!identity) return Unauthorized();
 
         const userId = identity.sub;
         const body = JSON.parse(event.body);
@@ -28,14 +25,10 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
         });
 
         let vResult: true | any[];
-        if ((vResult = org.validate()) !== true) {
-            return BadRequest(vResult)
-        }
+        if ((vResult = org.validate()) !== true) return BadRequest(vResult)
 
         const price = await stripe.prices.retrieve(body.priceId, { expand: ['product'] });
-        if (!price) {
-            return BadRequest('Plan does not exist.');
-        }
+        if (!price) return BadRequest('Plan does not exist.');
 
         let newOrganisation = await repos.organisations.save(org);
         newOrganisation = OrganisationModel.fromObject(newOrganisation);
@@ -55,6 +48,8 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
 
         const billing = new OrganisationBillingModel({
             financial: true,
+            // Means the organisation isn't yet active, stripe webhooks dictate completion
+            isOnboarding: true,
             organisation: newOrganisation,
             stripePriceId: body.priceId,
             stripeCustomerId: customer.id,
@@ -65,8 +60,6 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             organisation: newOrganisation
         });
         limits.parseStripePriceMetadata((price.product as any).metadata);
-
-        // add subdomain
 
         await Promise.all([
             repos.billing.save(billing),

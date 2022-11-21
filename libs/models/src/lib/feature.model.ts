@@ -5,7 +5,7 @@ import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
 
-@Entity()
+@Entity('features')
 export class FeatureModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -16,7 +16,7 @@ export class FeatureModel {
     @Column()
     name: string;
 
-    @Column({ default: false })
+    @Column('bool', { default: false })
     active: boolean;
 
     @OneToMany(() => FeatureEnvironmentModel, settings => settings.id)

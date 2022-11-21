@@ -1,7 +1,7 @@
 import { addProjectConfiguration, Tree } from '@nrwl/devkit';
 
 const buildRunCommandConfig = (dir: string, command: string) => ({
-  executor: '@nrwl/workspace:run-commands',
+  executor: 'nx:run-commands',
   options: {
     cwd: dir,
     color: true,
@@ -23,7 +23,7 @@ export const addWorkspaceConfig = (
         ...buildRunCommandConfig(stackRoot, 'sls package'),
       },
       serve: {
-        ...buildRunCommandConfig(stackRoot, 'sls offline start'),
+        ...buildRunCommandConfig(stackRoot, 'sls offline start --noPrependStageInUrl --stage=' + projectName),
       },
       deploy: {
         ...buildRunCommandConfig(stackRoot, 'sls deploy'),

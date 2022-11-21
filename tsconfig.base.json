@@ -4,22 +4,24 @@
         "rootDir": ".",
         "sourceMap": true,
         "declaration": false,
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "importHelpers": false,
-        "target": "es2015",
         "module": "commonjs",
-        "lib": ["esnext"],
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
         "esModuleInterop": true,
+        "noEmit": true,
         "baseUrl": ".",
+        "emitDecoratorMetadata": true,
+        "lib": ["es6"],  
+        "moduleResolution": "node",
+        "target": "es5", 
         "paths": {
             "@featuro.io/common": ["libs/common/src/index.ts"],
             "@featuro.io/models": ["libs/models/src/index.ts"],
             "@featuro.io/node-sdk": ["libs/node-sdk/src/index.ts"],
-            "@featuro.io/stripe": ["libs/common/src/stripe.ts"]
+            "@featuro.io/stripe": ["libs/common/src/stripe.ts"],
+            "@featuro.io/entities": ["libs/models/src/entities.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

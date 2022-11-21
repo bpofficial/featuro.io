@@ -4,7 +4,7 @@ import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
 
-@Entity()
+@Entity('projects')
 export class ProjectModel {
 
     @PrimaryGeneratedColumn('uuid')

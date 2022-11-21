@@ -4,7 +4,7 @@ import get from 'get-value';
 import { DateTime } from 'luxon';
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 
-@Entity()
+@Entity('feature_conditions')
 export class FeatureConditionModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -72,7 +72,7 @@ export class FeatureConditionModel {
 
                 /* istanbul ignore next */
                 break;
-            case 'string':
+            case 'string' :
                 switch (op) {
                     case 'eq': // equals
                         return valueA == valueB;

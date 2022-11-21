@@ -3,7 +3,7 @@ import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typ
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureModel } from "./feature.model";
 
-@Entity()
+@Entity('feature_impressions')
 export class FeatureImpressionModel {
     @PrimaryGeneratedColumn()
     id: number;

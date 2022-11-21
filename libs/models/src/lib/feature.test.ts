@@ -17,7 +17,7 @@ describe('FeatureModel', () => {
     const targets = {
         string: new FeatureTargetModel({
             valueKey: 'strValue',
-            type: 'string'
+            type: 
         }),
         number: new FeatureTargetModel({
             valueKey: 'numValue',

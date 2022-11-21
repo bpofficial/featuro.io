@@ -3,7 +3,7 @@ import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyTo
 import { FeatureConditionModel } from "./feature-condition.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 
-@Entity()
+@Entity('feature_condition-sets')
 export class FeatureConditionSetModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
@@ -14,7 +14,7 @@ export class FeatureConditionSetModel {
     @Column({ nullable: true, default: null })
     description: string | null;
 
-    @Column({ default: false })
+    @Column('bool', { default: false })
     isDefaultSet: boolean;
 
     @ManyToMany(() => FeatureConditionModel, variant => variant.id)

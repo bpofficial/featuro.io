@@ -5,7 +5,7 @@
     "sourceRoot": "stacks/authorizer/src",
     "targets": {
         "build": {
-            "executor": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "cwd": "stacks/authorizer",
                 "color": true,
@@ -13,15 +13,15 @@
             }
         },
         "serve": {
-            "executor": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "cwd": "stacks/authorizer",
                 "color": true,
-                "command": "sls offline start"
+                "command": "sls offline start --noPrependStageInUrlv --stage=authorizer"
             }
         },
         "deploy": {
-            "executor": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "cwd": "stacks/authorizer",
                 "color": true,
@@ -29,7 +29,7 @@
             }
         },
         "remove": {
-            "executor": "@nrwl/workspace:run-commands",
+            "executor": "nx:run-commands",
             "options": {
                 "cwd": "stacks/authorizer",
                 "color": true,

@@ -21,6 +21,6 @@ Outputs:
 
     ApiGatewayResourceAgentWorkstreamSyncPath:
         Value:
-            Ref: ApiGatewayResourceImpressionsPath
+            Ref: ApiGatewayResourceEnvironmentsPath
         Export:
-            Name: ${self:custom.serviceName}-ApiPath-Impressions-${self:custom.currentStage}
+            Name: ${self:custom.serviceName}-ApiPath-Environments-${self:custom.currentStage}

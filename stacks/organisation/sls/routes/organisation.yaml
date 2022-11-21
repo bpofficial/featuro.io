@@ -1,5 +1,5 @@
 createOrganisation:
-    handler: src/organisations/create-organisation/handler.createOrganisation
+    handler: src/organisation/create-organisation/handler.createOrganisation
     events:
         - http:
               method: POST
@@ -10,7 +10,7 @@ createOrganisation:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 updateOrganisation:
-    handler: src/organisations/update-organisation/handler.updateOrganisation
+    handler: src/organisation/update-organisation/handler.updateOrganisation
     events:
         - http:
               method: PUT
@@ -21,7 +21,7 @@ updateOrganisation:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 retrieveOrganisation:
-    handler: src/organisations/retrieve-organisation/handler.retrieveOrganisation
+    handler: src/organisation/retrieve-organisation/handler.retrieveOrganisation
     events:
         - http:
               method: GET

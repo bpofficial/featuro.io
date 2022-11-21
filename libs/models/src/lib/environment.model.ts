@@ -1,7 +1,7 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+@Entity('environments')
 export class EnvironmentModel {
 
     @PrimaryGeneratedColumn('uuid')
@@ -43,9 +43,7 @@ export class EnvironmentModel {
     }
 
     constructor(obj?: DeepPartial<EnvironmentModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
-            Object.assign(this, obj);
-        }
+        if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
     static mergeMany(a: DeepPartial<EnvironmentModel[]> = [], b: DeepPartial<EnvironmentModel>[] = []): EnvironmentModel[] {

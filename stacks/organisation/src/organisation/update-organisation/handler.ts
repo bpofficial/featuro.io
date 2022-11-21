@@ -12,14 +12,19 @@ export const updateOrganisation: APIGatewayProxyHandler = async (event, _context
             organisations: connection.getRepository(OrganisationModel),
         }
 
-        const orgId = event.pathParameters?.id;
+        const orgId = event.pathParameters?.organisationId;
         if (!isUUID.v4(orgId)) return BadRequest('Invalid organisation id')
 
         const identity = event.requestContext.authorizer?.context;
         if (!identity) return Unauthorized();
 
-        const userId = identity.sub;
-        let org = await repos.organisations.findOne({ where: { id: orgId, members: { id: userId } }, relations: ['members'] })
+        const userOrgId = identity.org;
+        const permissions = identity.permissions;
+
+        if (orgId !== userOrgId) return Unauthorized();
+        if (!permissions || !permissions.includes('update:organisation')) return Forbidden();
+
+        let org = await repos.organisations.findOne({ where: { id: orgId } })
         if (!org) return Forbidden();
 
         const body = JSON.parse(event.body);
