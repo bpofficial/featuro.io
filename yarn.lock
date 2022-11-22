@@ -12448,6 +12448,7 @@ __metadata:
     serverless-offline: 11.3.0
     serverless-offline-ssm: ^6.2.0
     serverless-plugin-typescript: ^2.1.4
+    serverless-prune-plugin: ^2.0.1
     stripe: ^10.17.0
     ts-jest: 28.0.5
     ts-loader: 9.4.1
@@ -14756,6 +14757,17 @@ __metadata:
     serverless: 2 || 3
     typescript: ">=2.2.2"
   checksum: de575273dc18fc6e224f4d812e5bed0cf6b4da1ee55495b17c02b421626833ce68caf68ada1f1f2516cfa6095af400661778716d848f5a42094adf36d93dc7ca
+  languageName: node
+  linkType: hard
+
+"serverless-prune-plugin@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "serverless-prune-plugin@npm:2.0.1"
+  dependencies:
+    bluebird: ^3.7.2
+  peerDependencies:
+    serverless: 1 || 2 || 3
+  checksum: a5c756241d2bb20f49d19a71000d3acec7e9c16a896d33ee36b096123cedeeb6d1fb94e159b2356294836b6cac36975309a130735d97b9f998025c396ce53391
   languageName: node
   linkType: hard
 

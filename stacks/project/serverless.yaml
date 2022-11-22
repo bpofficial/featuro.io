@@ -3,17 +3,22 @@ service: projects
 frameworkVersion: '3'
 
 package:
-    individually: true
+    individually: false
     excludeDevDependencies: true
 
 plugins:
+    - serverless-prune-plugin
     - serverless-esbuild
+    - serverless-offline-ssm
     - serverless-offline
 
 custom:
+    prune:
+        automatic: true
+        number: 1
     serviceName: projects
     currentStage: ${opt:stage, 'projects'}
-    esbild:
+    esbuild:
         bundle: true
         minify: true
         target: node16

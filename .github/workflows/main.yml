@@ -31,12 +31,6 @@ jobs:
       - name: Install packages
         run: yarn install --immutable
 
-      - name: Generate stack
-        run: npx nx workspace-generator serverless test-stack
-
-      - name: Generate library
-        run: npx nx g @nrwl/node:lib test-lib --tags lib
-
       - name: Linting
         run: npx nx run-many --target=lint --all
 

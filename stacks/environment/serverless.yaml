@@ -3,23 +3,29 @@ service: environments
 frameworkVersion: '3'
 
 package:
-    individually: true
+    individually: false
     excludeDevDependencies: true
 
 plugins:
+    - serverless-prune-plugin
     - serverless-esbuild
+    - serverless-offline-ssm
     - serverless-offline
 
 custom:
+    prune:
+        automatic: true
+        number: 1
     serviceName: environments
     currentStage: ${opt:stage, 'environments'}
-    esbild:
+    esbuild:
         bundle: true
         minify: true
         target: node16
         packager: yarn
         sourcemap: true
         sourcesContent: false
+        plugins: esbuild.plugins.js
 
 provider:
     name: aws

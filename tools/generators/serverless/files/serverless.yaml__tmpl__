@@ -7,10 +7,14 @@ package:
     excludeDevDependencies: true
 
 plugins:
+    - serverless-prune-plugin
     - serverless-esbuild
     - serverless-offline
 
 custom:
+    prune:
+        automatic: true
+        number: 1
     serviceName: <%= name %>s
     currentStage: ${opt:stage, '<%= name %>s'}
     esbuild:
