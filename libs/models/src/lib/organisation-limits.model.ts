@@ -8,9 +8,6 @@ export class OrganisationLimitsModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @OneToOne(() => OrganisationModel, org => org.billing)
-    organisation: OrganisationModel;
-
     @Column('int')
     members: number;
 
@@ -32,6 +29,9 @@ export class OrganisationLimitsModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
+    @OneToOne(() => OrganisationModel, org => org.billing)
+    organisation: OrganisationModel;
+
     toDto() {
         return OrganisationLimitsModel.toDto(this);
     }
@@ -41,7 +41,6 @@ export class OrganisationLimitsModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
-        if (obj.organisation) delete obj.organisation;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
@@ -74,12 +73,7 @@ export class OrganisationLimitsModel {
     }
 
     constructor(obj?: Partial<OrganisationLimitsModel>) {
-        if (isObjectLike(obj)) {
-            Object.assign(this, obj);
-            if (obj.organisation) {
-                this.organisation = OrganisationModel.fromObject(this.organisation);
-            }
-        }
+        if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
     static fromObject(result: any) {

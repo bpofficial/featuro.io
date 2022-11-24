@@ -6369,6 +6369,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv-expand@npm:^8.0.3":
+  version: 8.0.3
+  resolution: "dotenv-expand@npm:8.0.3"
+  checksum: 128ce90ac825b543de3ece0154a51b056ab0dc36bb26d97a68cd0b8707327ecd3c182fb6ac63b26a0fcdfa85064419906a1065cb634f1f9dc08ad311375f1fc0
+  languageName: node
+  linkType: hard
+
 "dotenv-expand@npm:^9.0.0":
   version: 9.0.0
   resolution: "dotenv-expand@npm:9.0.0"
@@ -6376,7 +6383,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^16.0.0, dotenv@npm:^16.0.3":
+"dotenv@npm:^16.0.0, dotenv@npm:^16.0.1, dotenv@npm:^16.0.3":
   version: 16.0.3
   resolution: "dotenv@npm:16.0.3"
   checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
@@ -12443,6 +12450,7 @@ __metadata:
     prettier: 2.7.1
     reflect-metadata: ^0.1.13
     serverless: 3.24.1
+    serverless-dotenv-plugin: ^4.0.2
     serverless-esbuild: 1.33.2
     serverless-jest-plugin: 0.4.0
     serverless-offline: 11.3.0
@@ -14667,6 +14675,19 @@ __metadata:
     parseurl: ~1.3.3
     send: 0.18.0
   checksum: af57fc13be40d90a12562e98c0b7855cf6e8bd4c107fe9a45c212bf023058d54a1871b1c89511c3958f70626fff47faeb795f5d83f8cf88514dbaeb2b724464d
+  languageName: node
+  linkType: hard
+
+"serverless-dotenv-plugin@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "serverless-dotenv-plugin@npm:4.0.2"
+  dependencies:
+    chalk: ^4.1.2
+    dotenv: ^16.0.1
+    dotenv-expand: ^8.0.3
+  peerDependencies:
+    serverless: "*"
+  checksum: 1dbdf063dde089e3cbb3ce1e9dbad9effc978829eb3f326c972a2ab663cc7025cbd0368680df98369c7f5bf9b5695a5cdff687fff0acd92bc534bf722a891521
   languageName: node
   linkType: hard
 

@@ -22,8 +22,8 @@ export class OrganisationBillingModel {
     @Column('bool', { default: true })
     isOnboarding: boolean;
 
-    @OneToOne(() => OrganisationModel, org => org.billing)
-    organisation: OrganisationModel;
+    @Column('bool', { default: true })
+    isTrialing: boolean;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -34,6 +34,9 @@ export class OrganisationBillingModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
+    @OneToOne(() => OrganisationModel, org => org.billing)
+    organisation: OrganisationModel;
+
     toDto() {
         return OrganisationBillingModel.toDto(this);
     }
@@ -43,7 +46,6 @@ export class OrganisationBillingModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
-        if (obj.organisation) delete obj.organisation;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
@@ -59,12 +61,7 @@ export class OrganisationBillingModel {
     }
 
     constructor(obj?: Partial<OrganisationBillingModel>) {
-        if (isObjectLike(obj)) {
-            Object.assign(this, obj);
-            if (obj.organisation) {
-                this.organisation = OrganisationModel.fromObject(this.organisation);
-            }
-        }
+        if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
     static fromObject(result: any) {

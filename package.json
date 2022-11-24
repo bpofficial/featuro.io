@@ -23,7 +23,8 @@
         "workspace-generator": "nx workspace-generator",
         "dep-graph": "nx dep-graph",
         "help": "nx help",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "test:stripe": "sudo docker run --rm -it --net=bridge stripe/stripe-cli listen --forward-to http://host.docker.internal:3000/api/v1/billing --api-key $(echo $STRIPE_API_KEY)"
     },
     "devDependencies": {
         "@aws-sdk/types": "3.201.0",
@@ -60,6 +61,7 @@
         "lint-staged": "13.0.3",
         "prettier": "2.7.1",
         "serverless": "3.24.1",
+        "serverless-dotenv-plugin": "^4.0.2",
         "serverless-esbuild": "1.33.2",
         "serverless-jest-plugin": "0.4.0",
         "serverless-offline": "11.3.0",

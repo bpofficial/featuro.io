@@ -7,12 +7,15 @@ package:
     excludeDevDependencies: true
 
 plugins:
+    - serverless-dotenv-plugin
     - serverless-prune-plugin
     - serverless-esbuild
     - serverless-offline-ssm
     - serverless-offline
 
 custom:
+    dotenv:
+        path: ../../
     prune:
         automatic: true
         number: 1
@@ -20,12 +23,20 @@ custom:
     currentStage: ${opt:stage, 'billing'}
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
         sourcemap: true
-        sourcesContent: false
+        sourcesContent: true
         plugins: esbuild.plugins.js
+    nodeEnv:
+       billing: development
+    serverless-offline-ssm:
+        stages:
+            - ${self:custom.serviceName}
+        ssm:
+            '/app/billing/billing/STRIPE_WEBHOOK_SECRET': ${env:STRIPE_WH_SECRET}
+            '/app/billing/billing/DB_URI': ${env:DB_URI}
 
 provider:
     name: aws
@@ -34,8 +45,8 @@ provider:
     memorySize: 128
     environment:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
-        STRIPE_API_KEY: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/STRIPE_API_KEY, null}
-        STRIPE_WEBHOOK_SECRET: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/STRIPE_WEBHOOK_SECRET, null}
+        STRIPE_WEBHOOK_SECRET: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/STRIPE_WEBHOOK_SECRET}
+        DB_URI: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/DB_URI}
     apiGateway:
         restApiId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}

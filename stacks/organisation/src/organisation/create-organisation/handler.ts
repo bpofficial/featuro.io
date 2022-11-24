@@ -44,6 +44,7 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             items: [{ price: body.priceId }],
             expand: ['latest_invoice.payment_intent'],
             trial_from_plan: true, // 14 days trial
+            metadata: { orgId: newOrganisation.id }
         });
 
         const billing = new OrganisationBillingModel({

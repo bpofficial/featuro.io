@@ -1,5 +1,5 @@
 import { DeepPartial, isObjectLike } from '@featuro.io/common';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from 'typeorm';
 import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
 import { ProjectModel } from './project.model';
@@ -22,13 +22,15 @@ export class OrganisationModel {
     @Column({ nullable: true })
     auth0OrganisationId: string | null;
 
-    @OneToOne(() => OrganisationBillingModel, bill => bill.organisation)
+    @OneToOne(() => OrganisationBillingModel, billing => billing.organisation)
+    @JoinColumn()
     billing: OrganisationBillingModel;
 
     @OneToOne(() => OrganisationLimitsModel, limits => limits.organisation)
+    @JoinColumn()
     limits: OrganisationLimitsModel;
 
-    @OneToMany(() => ProjectModel, proj => proj.id)
+    @OneToMany(() => ProjectModel, proj => proj.organisation)
     projects: ProjectModel[];
 
     @CreateDateColumn()

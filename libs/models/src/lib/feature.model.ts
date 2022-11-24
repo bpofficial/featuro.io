@@ -1,6 +1,6 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { DetailedPeerCertificate } from "tls";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
@@ -22,9 +22,11 @@ export class FeatureModel {
     @OneToMany(() => FeatureEnvironmentModel, settings => settings.id)
     environmentSettings: FeatureEnvironmentModel[];
 
+    @JoinColumn()
     @OneToOne(() => FeatureVariantModel, variant => variant.id)
     activeDefaultVariant: FeatureVariantModel;
 
+    @JoinColumn()
     @OneToOne(() => FeatureVariantModel, variant => variant.id)
     inactiveVariant: FeatureVariantModel;
 
