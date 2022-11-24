@@ -1,9 +1,10 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { DetailedPeerCertificate } from "tls";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
+import { ProjectModel } from "./project.model";
 
 @Entity('features')
 export class FeatureModel {
@@ -19,19 +20,22 @@ export class FeatureModel {
     @Column('bool', { default: false })
     active: boolean;
 
-    @OneToMany(() => FeatureEnvironmentModel, settings => settings.id)
+    @OneToMany(() => FeatureEnvironmentModel, settings => settings.id, { eager: true })
     environmentSettings: FeatureEnvironmentModel[];
 
     @JoinColumn()
-    @OneToOne(() => FeatureVariantModel, variant => variant.id)
+    @OneToOne(() => FeatureVariantModel, variant => variant.id, { eager: true })
     activeDefaultVariant: FeatureVariantModel;
 
     @JoinColumn()
-    @OneToOne(() => FeatureVariantModel, variant => variant.id)
+    @OneToOne(() => FeatureVariantModel, variant => variant.id, { eager: true })
     inactiveVariant: FeatureVariantModel;
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
+
+    @ManyToOne(() => ProjectModel, project => project.features)
+    project: ProjectModel;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -44,6 +48,10 @@ export class FeatureModel {
 
     toDto() {
         return FeatureModel.toDto(this);
+    }
+
+    validate(softValidate = false): true | string[] {
+        return true;
     }
 
     merge(obj: DeepPartial<FeatureModel>) {

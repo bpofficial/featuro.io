@@ -20,7 +20,7 @@ export class ProjectModel {
     @OneToMany(() => EnvironmentModel, env => env.id, { cascade: ['soft-remove'] })
     environments: EnvironmentModel[];
 
-    @OneToMany(() => FeatureModel, ft => ft.id, { cascade: ['soft-remove'] })
+    @OneToMany(() => FeatureModel, ft => ft.project, { cascade: ['soft-remove'] })
     features: FeatureModel[]
 
     @ManyToOne(() => OrganisationModel, org => org.projects)
