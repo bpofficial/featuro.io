@@ -13,6 +13,9 @@ export class EnvironmentModel {
     @Column()
     name: string;
 
+    @Column()
+    apiKey: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

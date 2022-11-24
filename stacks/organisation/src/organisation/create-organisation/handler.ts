@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Created, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, createConnection, Created, InternalServerError, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { OrganisationBillingModel, OrganisationLimitsModel, OrganisationModel } from '@featuro.io/models';
 import { stripe } from '@featuro.io/stripe';
@@ -43,13 +43,14 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             customer: customer.id,
             items: [{ price: body.priceId }],
             expand: ['latest_invoice.payment_intent'],
-            trial_from_plan: true, // 14 days trial
-            metadata: { orgId: newOrganisation.id }
+            trial_end: Math.floor((Date.now() + 12096e5) / 1000),
+            metadata: { organisationId: newOrganisation.id }
         });
 
         const billing = new OrganisationBillingModel({
-            financial: true,
-            // Means the organisation isn't yet active, stripe webhooks dictate completion
+            financial: false,
+            isTrialing: true,
+            // Means the organisation isn't yet active (subscription isn't setup properly), stripe webhooks dictate completion
             isOnboarding: true,
             organisation: newOrganisation,
             stripePriceId: body.priceId,
@@ -57,9 +58,7 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             stripeSubscriptionId: subscription.id
         });
         
-        const limits = new OrganisationLimitsModel({
-            organisation: newOrganisation
-        });
+        const limits = new OrganisationLimitsModel({ organisation: newOrganisation });
         limits.parseStripePriceMetadata((price.product as any).metadata);
 
         await Promise.all([

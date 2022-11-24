@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMan
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
+import { object, string, number, date, InferType } from 'yup';
 
 @Entity('projects')
 export class ProjectModel {
@@ -16,10 +17,10 @@ export class ProjectModel {
     @Column()
     name: string;
 
-    @OneToMany(() => EnvironmentModel, env => env.id)
+    @OneToMany(() => EnvironmentModel, env => env.id, { cascade: ['soft-remove'] })
     environments: EnvironmentModel[];
 
-    @OneToMany(() => FeatureModel, ft => ft.id)
+    @OneToMany(() => FeatureModel, ft => ft.id, { cascade: ['soft-remove'] })
     features: FeatureModel[]
 
     @ManyToOne(() => OrganisationModel, org => org.projects)
@@ -57,6 +58,20 @@ export class ProjectModel {
         return this;
     }
 
+    validate(softValidate = false): true | string[] {
+        try {
+            const schema = object({
+                name: softValidate ? string() : string().required(),
+                key: softValidate ? number() : number().required(),
+            });
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
+    }
+
     constructor(obj?: DeepPartial<ProjectModel>) {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
@@ -90,6 +105,10 @@ export class ProjectModel {
 
     static fromObject(result: any) {
         return new ProjectModel(result);
+    }
+
+    static fromObjectArray(results: any[]) {
+        return results.map(r => ProjectModel.fromObject(r))
     }
 
     static toDto(obj?: Partial<ProjectModel>) {

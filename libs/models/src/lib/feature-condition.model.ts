@@ -10,7 +10,7 @@ export class FeatureConditionModel {
     id: string;
 
     // i.e. Date, Hour of the Day, Subdomain, Email etc...
-    @ManyToOne(() => FeatureTargetModel, target => target.id)
+    @ManyToOne(() => FeatureTargetModel, target => target.id, { cascade: ['soft-remove'] })
     target: FeatureTargetModel;
 
     @Column()

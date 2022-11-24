@@ -17,10 +17,10 @@ export class FeatureConditionSetModel {
     @Column('bool', { default: false })
     isDefaultSet: boolean;
 
-    @ManyToMany(() => FeatureConditionModel, variant => variant.id)
+    @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['soft-remove'] })
     conditions: FeatureConditionModel[];
 
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id)
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['soft-remove'] })
     variant: FeatureVariantModel;
 
     @CreateDateColumn()

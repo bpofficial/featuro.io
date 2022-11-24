@@ -29,13 +29,11 @@ custom:
         sourcemap: true
         sourcesContent: true
         plugins: esbuild.plugins.js
-    nodeEnv:
-       billing: development
     serverless-offline-ssm:
         stages:
             - ${self:custom.serviceName}
         ssm:
-            '/app/billing/billing/STRIPE_WEBHOOK_SECRET': ${env:STRIPE_WH_SECRET}
+            '/app/billing/billing/STRIPE_WEBHOOK_SECRET': ${env:STRIPE_WEBHOOK_SECRET}
             '/app/billing/billing/DB_URI': ${env:DB_URI}
 
 provider:

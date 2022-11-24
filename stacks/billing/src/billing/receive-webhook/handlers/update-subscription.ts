@@ -33,8 +33,10 @@ export async function updateSubscription(data: Record<string, any>, subscription
     const status = data.status;
     if (status === 'trialing') {
         // Nice
+        
         org.billing.financial = false;
         org.billing.isTrialing = true;
+        org.billing.isOnboarding = false;
     } else if (status === 'active') {
         // A subscription that is currently in a trial period is trialing and moves to active when the trial period is over.
 

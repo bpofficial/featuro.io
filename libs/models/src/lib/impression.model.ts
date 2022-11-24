@@ -8,7 +8,7 @@ export class FeatureImpressionModel {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => FeatureModel, ft => ft.impressions)
+    @ManyToOne(() => FeatureModel, ft => ft.impressions, { cascade: ['soft-remove'] })
     feature: FeatureModel;
 
     @CreateDateColumn()
