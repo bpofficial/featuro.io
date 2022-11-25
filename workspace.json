@@ -6,7 +6,6 @@
         "common": "libs/common",
         "environment": "stacks/environment",
         "feature": "stacks/feature",
-        "impression": "stacks/impression",
         "models": "libs/models",
         "node-sdk": "libs/node-sdk",
         "organisation": "stacks/organisation",

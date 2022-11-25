@@ -3,7 +3,7 @@ createFeature:
     events:
         - http:
               method: POST
-              path: /api/v1/feature
+              path: /api/v1/projects/{projectId}/feature
               authorizer:
                   type: CUSTOM
                   authorizerId:
@@ -14,7 +14,7 @@ updateFeature:
     events:
         - http:
               method: PUT
-              path: /api/v1/features/{featureId}
+              path: /api/v1/projects/{projectId}/features/{featureId}
               authorizer:
                   type: CUSTOM
                   authorizerId:
@@ -25,7 +25,7 @@ deleteFeature:
     events:
         - http:
               method: PUT
-              path: /api/v1/features/{featureId}
+              path: /api/v1/projects/{projectId}/features/{featureId}
               authorizer:
                   type: CUSTOM
                   authorizerId:
@@ -36,7 +36,7 @@ retrieveFeature:
     events:
         - http:
               method: GET
-              path: /api/v1/features/{featureId}
+              path: /api/v1/projects/{projectId}/features/{featureId}
               authorizer:
                   type: CUSTOM
                   authorizerId:
@@ -47,7 +47,7 @@ listFeature:
     events:
         - http:
               method: GET
-              path: /api/v1/features
+              path: /api/v1/projects/{projectId}/features
               authorizer:
                   type: CUSTOM
                   authorizerId:

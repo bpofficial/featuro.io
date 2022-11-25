@@ -1,5 +1,6 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ProjectModel } from "./project.model";
 
 @Entity('environments')
 export class EnvironmentModel {
@@ -16,6 +17,9 @@ export class EnvironmentModel {
     @Column()
     apiKey: string;
 
+    @ManyToOne(() => ProjectModel, proj => proj.environments)
+    project: ProjectModel;
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -27,6 +31,10 @@ export class EnvironmentModel {
 
     toDto() {
         return EnvironmentModel.toDto(this)
+    }
+
+    validate(softValidate = false): true | string[] {
+        return true;
     }
 
     merge(obj: DeepPartial<EnvironmentModel>) {
@@ -60,6 +68,10 @@ export class EnvironmentModel {
 
     static fromObject(result: any) {
         return new EnvironmentModel(result);
+    }
+
+    static fromObjectArray(results: any[]) {
+        return results.map(r => EnvironmentModel.fromObject(r))
     }
 
     static toDto(obj?: Partial<EnvironmentModel>) {
