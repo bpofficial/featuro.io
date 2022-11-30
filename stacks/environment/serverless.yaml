@@ -18,6 +18,9 @@ custom:
         number: 1
     serviceName: environments
     currentStage: ${opt:stage, 'environments'}
+    serverless-offline:
+        httpPort: 5000
+        lambdaPort: 5001
     esbuild:
         bundle: true
         minify: true

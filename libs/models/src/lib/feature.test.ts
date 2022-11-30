@@ -42,11 +42,11 @@ describe('FeatureModel', () => {
 
     const getFeature = (cds: FeatureConditionModel[]) => new FeatureModel({
         active: true,
-        activeDefaultVariant: variants.Off,
-        inactiveVariant: variants.Off,
         environmentSettings: [
             new FeatureEnvironmentModel({
                 environment: env,
+                activeDefaultVariant: variants.Off,
+                inactiveVariant: variants.Off,
                 conditionSets: [
                     new FeatureConditionSetModel({
                         name: 'cd1',
@@ -66,7 +66,8 @@ describe('FeatureModel', () => {
 
             const feature = getFeature([
                 new FeatureConditionModel({
-                    target: targets.number,                    operator: 'eq',
+                    target: targets.number,
+                    operator: 'eq',
                     staticOperand: '1',
                 })
             ])

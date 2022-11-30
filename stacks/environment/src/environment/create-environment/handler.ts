@@ -3,6 +3,9 @@ import { BadRequest, createConnection, Created, Forbidden, InternalServerError, 
 import { DataSource } from 'typeorm';
 import { EnvironmentModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
+import { customAlphabet } from 'nanoid';
+
+const createApiKey = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890', 24);
 
 let connection: DataSource;
 export const createEnvironment: APIGatewayProxyHandler = async (
@@ -44,6 +47,8 @@ export const createEnvironment: APIGatewayProxyHandler = async (
         if ((vResult = environment.validate()) !== true) return BadRequest(vResult);
 
         environment.project = project;
+        environment.apiKey = createApiKey();
+
         let result = await repos.environments.save(environment);
 
         result = EnvironmentModel.fromObject(result);

@@ -1,5 +1,6 @@
 import { DeepPartial, isObjectLike } from '@featuro.io/common';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, JoinColumn } from 'typeorm';
+import { object, string } from 'yup';
 import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
 import { ProjectModel } from './project.model';
@@ -22,11 +23,11 @@ export class OrganisationModel {
     @Column({ nullable: true })
     auth0OrganisationId: string | null;
 
-    @OneToOne(() => OrganisationBillingModel, billing => billing.organisation)
+    @OneToOne(() => OrganisationBillingModel, { cascade: true })
     @JoinColumn()
     billing: OrganisationBillingModel;
 
-    @OneToOne(() => OrganisationLimitsModel, limits => limits.organisation)
+    @OneToOne(() => OrganisationLimitsModel, { cascade: true })
     @JoinColumn()
     limits: OrganisationLimitsModel;
 
@@ -74,9 +75,27 @@ export class OrganisationModel {
         return this;
     }
 
-    validate(): true | any[] {
-        // name, subdomain
-        return true;
+    validate(softValidate = false): true | any[] {
+        try {
+            let schema;
+            if (!softValidate) {
+                schema = object({
+                    name: string().required(),
+                    priceId: string().required(),
+                    subdomain: string().required()
+                });
+            } else {
+                schema = object({
+                    name: string(),
+                    priceId: string(),
+                });
+            }
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     constructor(obj?: Partial<OrganisationModel>) {

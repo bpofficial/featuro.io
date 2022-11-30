@@ -25,6 +25,9 @@ custom:
         packager: yarn
         sourcemap: true
         sourcesContent: false
+    serverless-offline:
+        httpPort: 6000
+        lambdaPort: 6001
 
 provider:
     name: aws

@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, createConnection, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { FeatureModel, ProjectModel } from '@featuro.io/models';
+import { FeatureModel, FeatureVariantModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
@@ -27,7 +27,12 @@ export const createFeature: APIGatewayProxyHandler = async (
             features: connection.getRepository(FeatureModel),
         }
 
-        const project = await repos.projects.findOne({ where: { id: projectId, organisation: { id: userOrgId } }, relations: ['organisation', 'features'] })
+        const project = await repos.projects.findOne({ 
+            where: { 
+                id: projectId, 
+                organisation: { id: userOrgId } 
+            }, relations: ['organisation', 'environments'] })
+
         if (!project) return Forbidden();
 
         const body = JSON.parse(event.body);
@@ -36,7 +41,22 @@ export const createFeature: APIGatewayProxyHandler = async (
         let vResult: true | any[];
         if ((vResult = feature.validate()) !== true) return BadRequest(vResult);
 
+        feature.addEnvironments(project.environments, {
+            activeDefaultVariant: new FeatureVariantModel({
+                key: 'on',
+                name: 'On',
+                description: 'Default variant indicating that the feature is active.'
+            }),
+            inactiveVariant: new FeatureVariantModel({
+                key: 'off',
+                name: 'Off',
+                description: 'Default variant indicating that the feature is inactive.'
+            })
+        });
+
+        feature.active = false;
         feature.project = project;
+
         let result = await repos.features.save(feature);
 
         result = FeatureModel.fromObject(result);

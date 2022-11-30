@@ -20,7 +20,13 @@ export class FeatureConditionSetModel {
     @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['soft-remove'] })
     conditions: FeatureConditionModel[];
 
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['soft-remove'] })
+    /**
+     * If the conditions are met and are truthy, this variant is returned
+     * 
+     * So if the conditions were checking if the date is past X, and the date is X + 1,
+     * then the evaluation would return this variant.
+     */
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id)
     variant: FeatureVariantModel;
 
     @CreateDateColumn()

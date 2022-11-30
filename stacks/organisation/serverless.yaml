@@ -20,12 +20,15 @@ custom:
     currentStage: ${opt:stage, 'organisation'}
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
         sourcemap: true
-        sourcesContent: false
+        sourcesContent: true
         plugins: esbuild.plugins.js
+    serverless-offline:
+        httpPort: 3000
+        lambdaPort: 3001
     serverless-offline-ssm:
         stages:
             - ${self:custom.serviceName}

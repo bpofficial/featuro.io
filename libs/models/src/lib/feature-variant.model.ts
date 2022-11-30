@@ -36,12 +36,12 @@ export class FeatureVariantModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
+        if (obj.key) this.key = obj.key;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.key) this.key = obj.key;
         if (obj.name) this.name = obj.name;
         if (obj.description) this.description = obj.description;
 

@@ -12095,6 +12095,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "nanoid@npm:4.0.0"
+  bin:
+    nanoid: bin/nanoid.js
+  checksum: 7d5946df5c6d383694195b781ae7b5067c149d164ec71e910d6b06676309c3459b68af570b944fb5ecd5065d19df464f05700d141d70bb712ff8ca06642fd8df
+  languageName: node
+  linkType: hard
+
 "nanomatch@npm:^1.2.9":
   version: 1.2.13
   resolution: "nanomatch@npm:1.2.13"
@@ -12493,6 +12502,7 @@ __metadata:
     lint-staged: 13.0.3
     luxon: ^3.1.0
     mysql2: ^2.3.3
+    nanoid: ^4.0.0
     prettier: 2.7.1
     reflect-metadata: ^0.1.13
     serverless: 3.24.1

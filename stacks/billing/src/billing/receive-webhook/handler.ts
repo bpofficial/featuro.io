@@ -19,6 +19,8 @@ export const receiveWebhook: APIGatewayProxyHandler = async (
     
         const hookData = stripeEvent.data.object as any;
         const subscriptionId = hookData?.id;
+
+        console.log(eventType, hookData);
     
         switch (eventType) {
             case 'customer.subscription.created':
@@ -29,6 +31,7 @@ export const receiveWebhook: APIGatewayProxyHandler = async (
                 await deleteSubscription(hookData);
                 break;
             case 'price.updated':
+            case 'product.updated':
                 await updatePriceData(hookData);
                 break;
             default:

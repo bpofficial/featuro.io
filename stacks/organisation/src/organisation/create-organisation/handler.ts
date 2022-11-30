@@ -1,8 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Created, InternalServerError, Unauthorized } from '@featuro.io/common';
+import { BadRequest, createConnection, Created, DeepPartial, InternalServerError, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { OrganisationBillingModel, OrganisationLimitsModel, OrganisationModel } from '@featuro.io/models';
 import { stripe } from '@featuro.io/stripe';
+import Stripe from 'stripe';
 
 let connection: DataSource;
 export const createOrganisation: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
@@ -27,8 +28,18 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
         let vResult: true | any[];
         if ((vResult = org.validate()) !== true) return BadRequest(vResult)
 
-        const price = await stripe.prices.retrieve(body.priceId, { expand: ['product'] });
-        if (!price) return BadRequest('Plan does not exist.');
+        let price: Stripe.Response<Stripe.Price>;
+        try {
+            price = await stripe.prices.retrieve(body.priceId, { expand: ['product'] });
+        } catch (err) {
+            console.debug('[Stripe Error]:', err);
+
+            if (err?.raw?.statusCode === 404) {
+                return BadRequest('Plan does not exist.');
+            }
+
+            throw new Error('Failed to contact payment provider.')
+        }
 
         let newOrganisation = await repos.organisations.save(org);
         newOrganisation = OrganisationModel.fromObject(newOrganisation);
@@ -66,7 +77,11 @@ export const createOrganisation: APIGatewayProxyHandler = async (event, _context
             repos.limits.save(limits)
         ])
 
-        return Created(newOrganisation.toDto())
+        const result = newOrganisation as DeepPartial<OrganisationModel>;
+
+        result.limits = limits.toDto();
+
+        return Created(OrganisationModel.fromObject(result).toDto())
     } catch (err) {
         console.debug(err)
         return InternalServerError(err.message);

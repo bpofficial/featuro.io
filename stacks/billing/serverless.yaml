@@ -29,6 +29,9 @@ custom:
         sourcemap: true
         sourcesContent: true
         plugins: esbuild.plugins.js
+    serverless-offline:
+        httpPort: 4000
+        lambdaPort: 4001
     serverless-offline-ssm:
         stages:
             - ${self:custom.serviceName}

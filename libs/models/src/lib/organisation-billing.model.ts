@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
 import { DeepPartial, isObjectLike } from '@featuro.io/common';
 
@@ -34,7 +34,6 @@ export class OrganisationBillingModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
-    @OneToOne(() => OrganisationModel, org => org.billing)
     organisation: OrganisationModel;
 
     toDto() {
@@ -74,16 +73,18 @@ export class OrganisationBillingModel {
         if (!includeSensitive) {
             return { 
                 financial: obj?.financial,
+                isTrialing: obj?.isTrialing,
                 isOnboarding: obj?.isOnboarding
             };
         }
 
         return {
             financial: obj?.financial,
+            isTrialing: obj?.isTrialing,
+            isOnboarding: obj?.isOnboarding,
             stripePriceId: obj?.stripePriceId,
             stripeCustomerId: obj?.stripeCustomerId,
-            stripeSubscriptionId: obj?.stripeSubscriptionId,
-            isOnboarding: obj?.isOnboarding
+            stripeSubscriptionId: obj?.stripeSubscriptionId
         }
     }
 

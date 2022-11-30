@@ -1,23 +1,30 @@
 import { DeepPartial, isObjectLike } from "@featuro.io/common";
 import { Stripe } from "stripe";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
+
+const Defaults = {
+    members: 10,
+    projects: 1,
+    environments: 3,
+    features: 15
+}
 
 @Entity('org_limits')
 export class OrganisationLimitsModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column('int')
+    @Column({ default: Defaults.members })
     members: number;
 
-    @Column('int')
+    @Column({ default: Defaults.projects })
     projects: number;
 
-    @Column('int')
+    @Column({ default: Defaults.environments })
     environments: number;
 
-    @Column('int')
+    @Column({ default: Defaults.features })
     features: number;
 
     @CreateDateColumn()
@@ -29,7 +36,6 @@ export class OrganisationLimitsModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
-    @OneToOne(() => OrganisationModel, org => org.billing)
     organisation: OrganisationModel;
 
     toDto() {
@@ -55,10 +61,10 @@ export class OrganisationLimitsModel {
     }
 
     parseStripePriceMetadata(meta: Record<string, any>) {
-        this.members =      this.getValueFromMetadata('members-limit',      meta, 10);
-        this.projects =     this.getValueFromMetadata('projects-limit',     meta, 10);
-        this.environments = this.getValueFromMetadata('environments-limit', meta, 10);
-        this.features =     this.getValueFromMetadata('features-limit',     meta, 10);
+        this.members =      this.getValueFromMetadata('members-limit',      meta, Defaults.members);
+        this.projects =     this.getValueFromMetadata('projects-limit',     meta, Defaults.projects);
+        this.environments = this.getValueFromMetadata('environments-limit', meta, Defaults.environments);
+        this.features =     this.getValueFromMetadata('features-limit',     meta, Defaults.features);
     }
 
     private getValueFromMetadata(key: string, meta: Stripe.Metadata, fallback: any): any {
@@ -81,7 +87,13 @@ export class OrganisationLimitsModel {
     }
 
     static toDto(obj?: Partial<OrganisationLimitsModel>) {
-        if (!obj) return null;
-        return {}
+        if (!isObjectLike(obj)) return null;
+
+        return {
+            members: obj?.members,
+            projects: obj?.projects,
+            environments: obj?.environments,
+            features: obj?.features,
+        }
     }
 }

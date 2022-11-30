@@ -24,7 +24,7 @@
         "dep-graph": "nx dep-graph",
         "help": "nx help",
         "prepare": "husky install",
-        "test:stripe": "sudo docker run --rm -it --net=bridge stripe/stripe-cli listen --forward-to http://host.docker.internal:3000/api/v1/billing --api-key $(echo $STRIPE_API_KEY)"
+        "test:stripe": "sudo docker run --rm -it --net=bridge stripe/stripe-cli listen --forward-to http://host.docker.internal:4000/api/v1/billing --api-key $(echo $STRIPE_API_KEY)"
     },
     "devDependencies": {
         "@aws-sdk/types": "3.201.0",
@@ -94,6 +94,7 @@
         "jwks-rsa": "^3.0.0",
         "luxon": "^3.1.0",
         "mysql2": "^2.3.3",
+        "nanoid": "^4.0.0",
         "reflect-metadata": "^0.1.13",
         "serverless-prune-plugin": "^2.0.1",
         "stripe": "^10.17.0",

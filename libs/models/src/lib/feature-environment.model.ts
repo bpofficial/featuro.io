@@ -1,7 +1,8 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
+import { FeatureVariantModel } from "./feature-variant.model";
 
 @Entity('feature_environments')
 export class FeatureEnvironmentModel {
@@ -11,9 +12,25 @@ export class FeatureEnvironmentModel {
     @ManyToOne(() => EnvironmentModel, env => env.id)
     environment: EnvironmentModel;
 
-    // When targeting is enabled, these are evaluated
-    @OneToMany(() => FeatureConditionSetModel, cd => cd.id, { nullable: true })
+    /**
+     * When the feature is active in this environment, and there is a non-zero number of 
+     * condition-sets, evaluate them to find the expected variant.
+     */
+    @OneToMany(() => FeatureConditionSetModel, cd => cd.id, { nullable: true, cascade: ['insert'] })
     conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
+
+    /**
+     * When the feature is active in this environment, but there are no condition sets to evaluate,
+     * use this variant.
+     */
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['insert'] })
+    activeDefaultVariant: FeatureVariantModel;
+
+    /**
+     * When the feature is in-active in this environment, use this variant.
+     */
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['insert'] })
+    inactiveVariant: FeatureVariantModel;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -41,14 +58,16 @@ export class FeatureEnvironmentModel {
         return this;
     }
 
-    evaluate(context: Record<string, any>) {
+    evaluate(active: boolean, context: Record<string, any>) {
+        if (!active) return this.inactiveVariant;
+
         if (this.conditionSets) {
             const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
             if (sets.length) {
                 return sets[0].variant;
             }
         }
-        return null;
+        return this.activeDefaultVariant;
     }
 
     constructor(obj?: DeepPartial<FeatureEnvironmentModel>) {

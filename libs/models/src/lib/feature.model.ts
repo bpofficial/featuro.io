@@ -5,6 +5,8 @@ import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
 import { ProjectModel } from "./project.model";
 import { object, string, number, bool } from 'yup';
+import { EnvironmentModel } from "./environment.model";
+import { FeatureConditionSetModel } from "./feature-condition-set.model";
 
 @Entity('features')
 export class FeatureModel {
@@ -26,22 +28,6 @@ export class FeatureModel {
         { eager: true, cascade: ['soft-remove', 'insert'] }
     )
     environmentSettings: FeatureEnvironmentModel[];
-
-    @JoinColumn()
-    @OneToOne(
-        () => FeatureVariantModel, 
-        variant => variant.id, 
-        { eager: true, cascade: ['soft-remove', 'insert']}
-    )
-    activeDefaultVariant: FeatureVariantModel;
-
-    @JoinColumn()
-    @OneToOne(
-        () => FeatureVariantModel, 
-        variant => variant.id, 
-        { eager: true, cascade: ['soft-remove', 'insert'] }
-    )
-    inactiveVariant: FeatureVariantModel;
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
@@ -93,8 +79,6 @@ export class FeatureModel {
         // Deep-merging fields
         if (obj.environmentSettings) this.environmentSettings = 
             FeatureEnvironmentModel.mergeMany(this.environmentSettings, obj.environmentSettings);
-        if (obj.activeDefaultVariant) this.activeDefaultVariant.merge(obj.activeDefaultVariant);
-        if (obj.inactiveVariant) this.inactiveVariant.merge(obj.inactiveVariant);
         if (obj.impressions) this.impressions = FeatureImpressionModel.mergeMany(this.impressions, obj.impressions);
 
         return this;
@@ -102,13 +86,28 @@ export class FeatureModel {
 
     evaluate(environment: string, context?: Record<string, any>) {
         const env = this.environmentSettings.find(env => env.environment.key === environment);
-        const result = env.evaluate(context || {});
+        return env.evaluate(this.active, context || {});
+    }
 
-        if (this.active) {
-            return result || this.activeDefaultVariant;
-        } else {
-            return this.inactiveVariant;
+    /**
+     * 
+     * @param environment The environment to be setup with the feature
+     * @param mergeParts A partial object containing values that are assignable to all environments (e.g. default variants)
+     */
+    addEnvironment(environment: EnvironmentModel, mergeParts: Partial<FeatureEnvironmentModel> = {}) {
+        if (!this.environmentSettings) this.environmentSettings = [];
+
+        if (this.environmentSettings.findIndex(env => env.id === environment.id) === -1) {
+            // Doesn't yet exist
+            this.environmentSettings.push(new FeatureEnvironmentModel({
+                ...mergeParts,
+                environment
+            }))
         }
+    }
+
+    addEnvironments(environments: EnvironmentModel[], mergeParts: Partial<FeatureEnvironmentModel> = {}) {
+        environments.forEach(env => this.addEnvironment(env, mergeParts))
     }
 
     constructor(obj: DeepPartial<FeatureModel>) {
@@ -128,9 +127,6 @@ export class FeatureModel {
             } else {
                 this.impressions = [];
             }
-
-            this.activeDefaultVariant = FeatureVariantModel.fromObject(this.activeDefaultVariant);
-            this.inactiveVariant = FeatureVariantModel.fromObject(this.inactiveVariant);
         }
     }
 
@@ -159,8 +155,6 @@ export class FeatureModel {
             key: obj?.key,
             active: obj?.active,
             environmentSettings: obj?.environmentSettings ? FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) : {},
-            activeDefaultVariant: FeatureVariantModel.toDto(obj.activeDefaultVariant),
-            inactiveVariant: FeatureVariantModel.toDto(obj.inactiveVariant),
             impressions: obj?.impressions ? obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) : []
         }
     }

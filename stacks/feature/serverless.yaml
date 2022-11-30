@@ -26,6 +26,9 @@ custom:
         sourcemap: true
         sourcesContent: false
         plugins: esbuild.plugins.js
+    serverless-offline:
+        httpPort: 6000
+        lambdaPort: 6001
 
 provider:
     name: aws

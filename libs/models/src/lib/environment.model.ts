@@ -82,6 +82,7 @@ export class EnvironmentModel {
     }
 
     static fromObjectArray(results: any[]) {
+        if (!isArrayLike(results)) return [];
         return results.map(r => EnvironmentModel.fromObject(r))
     }
 
