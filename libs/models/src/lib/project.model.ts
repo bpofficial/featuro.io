@@ -3,7 +3,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMan
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
-import { object, string, number, date, InferType } from 'yup';
+import { object, string, number } from 'yup';
 
 @Entity('projects')
 export class ProjectModel {
@@ -62,7 +62,7 @@ export class ProjectModel {
         try {
             const schema = object({
                 name: softValidate ? string() : string().required(),
-                key: softValidate ? number() : number().required(),
+                key: softValidate ? string() : string().required(),
             });
         
             schema.validateSync(this);

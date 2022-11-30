@@ -34,7 +34,6 @@ export const deleteFeature: APIGatewayProxyHandler = async (event, _context): Pr
             }, relations: ['organisation', 'features'] })
 
         if (!project) return Forbidden();
-        if (!project.features.length) return NotFound();
 
         await repos.features.softRemove(project.features[0]);
 

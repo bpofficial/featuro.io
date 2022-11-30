@@ -5,10 +5,7 @@ import { FeatureModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const updateFeature: APIGatewayProxyHandler = async (
-    event,
-    _context
-): Promise<APIGatewayProxyResult> => {
+export const updateFeature: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         const featureId = event.pathParameters?.featureId;
@@ -43,16 +40,16 @@ export const updateFeature: APIGatewayProxyHandler = async (
             }, relations: ['organisation', 'features'] })
 
         if (!project) return Forbidden();
-        if (!project.features.length) return NotFound();
 
         let feature = FeatureModel.fromObject(project.features[0])
 
         feature = FeatureModel.fromObject(feature);
         feature.merge(update);
 
-        await repos.features.save(feature);
+        let result = await repos.features.save(feature);
+        result = FeatureModel.fromObject(result);
 
-        return NoContent();
+        return Ok(result.toDto());
     } catch (err) {
         console.debug(err);
         return InternalServerError(err.message);

@@ -31,7 +31,6 @@ export const retrieveFeature: APIGatewayProxyHandler = async (event, _context): 
             }, relations: ['organisation', 'features'] })
 
         if (!project) return Forbidden();
-        if (!project.features.length) return NotFound();
 
         const result = FeatureModel.fromObject(project.features[0])
 

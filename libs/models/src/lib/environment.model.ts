@@ -1,6 +1,7 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectModel } from "./project.model";
+import { object, string, number } from 'yup';
 
 @Entity('environments')
 export class EnvironmentModel {
@@ -34,7 +35,17 @@ export class EnvironmentModel {
     }
 
     validate(softValidate = false): true | string[] {
-        return true;
+        try {
+            const schema = object({
+                name: softValidate ? string() : string().required(),
+                key: softValidate ? string() : string().required(),
+            });
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     merge(obj: DeepPartial<EnvironmentModel>) {

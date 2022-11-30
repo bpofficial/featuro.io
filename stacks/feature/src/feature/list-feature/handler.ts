@@ -5,7 +5,7 @@ import { FeatureModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const deleteFeature: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
+export const listFeatures: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')

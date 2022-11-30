@@ -1,10 +1,10 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { DetailedPeerCertificate } from "tls";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
 import { ProjectModel } from "./project.model";
+import { object, string, number, bool } from 'yup';
 
 @Entity('features')
 export class FeatureModel {
@@ -20,15 +20,27 @@ export class FeatureModel {
     @Column('bool', { default: false })
     active: boolean;
 
-    @OneToMany(() => FeatureEnvironmentModel, settings => settings.id, { eager: true })
+    @OneToMany(
+        () => FeatureEnvironmentModel, 
+        settings => settings.id, 
+        { eager: true, cascade: ['soft-remove', 'insert'] }
+    )
     environmentSettings: FeatureEnvironmentModel[];
 
     @JoinColumn()
-    @OneToOne(() => FeatureVariantModel, variant => variant.id, { eager: true })
+    @OneToOne(
+        () => FeatureVariantModel, 
+        variant => variant.id, 
+        { eager: true, cascade: ['soft-remove', 'insert']}
+    )
     activeDefaultVariant: FeatureVariantModel;
 
     @JoinColumn()
-    @OneToOne(() => FeatureVariantModel, variant => variant.id, { eager: true })
+    @OneToOne(
+        () => FeatureVariantModel, 
+        variant => variant.id, 
+        { eager: true, cascade: ['soft-remove', 'insert'] }
+    )
     inactiveVariant: FeatureVariantModel;
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
@@ -51,7 +63,17 @@ export class FeatureModel {
     }
 
     validate(softValidate = false): true | string[] {
-        return true;
+        try {
+            const schema = object({
+                name: softValidate ? string() : string().required(),
+                active: bool()
+            });
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     merge(obj: DeepPartial<FeatureModel>) {
@@ -59,12 +81,12 @@ export class FeatureModel {
 
         // Disallowed update fields
         if (obj.id) delete obj.id;
+        if (obj.key) delete obj.key;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.key) this.key = obj.key;
         if (obj.name) this.name = obj.name;
         if (obj.active) this.active = obj.active;
 

@@ -3299,6 +3299,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/uuid@npm:^9":
+  version: 9.0.0
+  resolution: "@types/uuid@npm:9.0.0"
+  checksum: 59ae56d9547c8758588659da2a2b4c97cce79c2aae1798c892bb29452ef08e87859dea2ec3a66bfa88d0d2153147520be2b1893be920f9f0bc9c53a3207ea6aa
+  languageName: node
+  linkType: hard
+
 "@types/webpack@npm:5.28.0":
   version: 5.28.0
   resolution: "@types/webpack@npm:5.28.0"
@@ -12467,6 +12474,7 @@ __metadata:
     "@types/node": 16.11.7
     "@types/serverless": 3.12.8
     "@types/terser-webpack-plugin": 5.0.4
+    "@types/uuid": ^9
     "@types/webpack": 5.28.0
     "@types/yup": ^0
     "@typescript-eslint/eslint-plugin": 5.42.1
@@ -12502,6 +12510,7 @@ __metadata:
     tslib: ^2.3.0
     typeorm: ^0.3.10
     typescript: ^4.9.3
+    uuid: ^9.0.0
     yup: ^0.32.11
   languageName: unknown
   linkType: soft

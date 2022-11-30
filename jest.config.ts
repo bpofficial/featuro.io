@@ -12,4 +12,5 @@ export default {
         '<rootDir>/stacks/project',
         '<rootDir>/stacks/billing',
     ],
+    collectCoverage: true
 };
