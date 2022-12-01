@@ -1,7 +1,6 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, createConnection, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { OrganisationModel } from 'libs/models/src/lib/organisation.model';
 import { ProjectModel } from 'libs/models/src/lib/project.model';
 
 let connection: DataSource;

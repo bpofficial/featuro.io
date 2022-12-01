@@ -1,9 +1,9 @@
 createProject:
-    handler: src/projects/create-project/handler.createProject
+    handler: src/project/create-project/handler.createProject
     events:
         - http:
               method: POST
-              path: /api/v1/project
+              path: /api/v1/projects
               authorizer:
                   type: CUSTOM
                   authorizerId:
@@ -19,6 +19,7 @@ updateProject:
                   type: CUSTOM
                   authorizerId:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+                      
 deleteProject:
     handler: src/project/delete-project/handler.deleteProject
     events:
@@ -31,7 +32,7 @@ deleteProject:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 retrieveProject:
-    handler: src/projects/retrieve-project/handler.retrieveProject
+    handler: src/project/retrieve-project/handler.retrieveProject
     events:
         - http:
               method: GET
@@ -42,7 +43,7 @@ retrieveProject:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 listProject:
-    handler: src/projects/list-project/handler.listProject
+    handler: src/project/list-project/handler.listProject
     events:
         - http:
               method: GET

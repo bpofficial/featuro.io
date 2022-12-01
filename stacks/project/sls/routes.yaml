@@ -37,3 +37,42 @@ Resources:
                 Ref: ApiGatewayResourceProjectsPath
             RestApiId:
                 Ref: ApiGatewayRestApi
+
+    # PATH /projects/{projectId}
+    ApiGatewayResourceProjectByIdPath:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            ParentId:
+                Ref: ApiGatewayResourceProjectsPath
+            PathPart: '{projectId}'
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    ApiGatewayResourceProjectsWithIdOptions:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: 'NONE'
+            HttpMethod: 'OPTIONS'
+            MethodResponses:
+                - StatusCode: 200
+                  ResponseParameters:
+                      method.response.header.Access-Control-Allow-Origin: true
+                      method.response.header.Access-Control-Allow-Headers: true
+                      method.response.header.Access-Control-Allow-Methods: true
+            Integration:
+                Type: MOCK
+                RequestTemplates:
+                    application/json: '{statusCode:200}'
+                ContentHandling: 'CONVERT_TO_TEXT'
+                IntegrationResponses:
+                    - StatusCode: 200
+                      ResponseParameters:
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-datadog-trace-id,x-datadog-parent-id,x-datadog-origin,x-datadog-sampling-priority,x-datadog-sampled'"
+                          method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,DELETE,POST,PUT,PATCH'"
+                      ResponseTemplates:
+                          application/json: ''
+            ResourceId:
+                Ref: ApiGatewayResourceProjectByIdPath
+            RestApiId:
+                Ref: ApiGatewayRestApi

@@ -1,5 +1,5 @@
 createEnvironment:
-    handler: src/environments/create-environment/handler.createEnvironment
+    handler: src/environment/create-environment/handler.createEnvironment
     events:
         - http:
               method: POST
@@ -32,7 +32,7 @@ deleteEnvironment:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 retrieveEnvironment:
-    handler: src/environments/retrieve-environment/handler.retrieveEnvironment
+    handler: src/environment/retrieve-environment/handler.retrieveEnvironment
     events:
         - http:
               method: GET
@@ -43,7 +43,7 @@ retrieveEnvironment:
                       Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
 listEnvironment:
-    handler: src/environments/list-environment/handler.listEnvironment
+    handler: src/environment/list-environment/handler.listEnvironment
     events:
         - http:
               method: GET

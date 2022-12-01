@@ -10,7 +10,7 @@ Resources:
         DependsOn: 'ApiGatewayDeployment${sls:instanceId}'
         Properties:
             BasePath: '/api/v1/'
-            DomainName: ${ssm:/app/test/global/ApiDomainName, null}
+            DomainName: ${ssm:/app/global/ApiDomainName, null}
             RestApiId: !Ref ApiGatewayRestApi
             Stage: ${self:custom.currentStage}
 

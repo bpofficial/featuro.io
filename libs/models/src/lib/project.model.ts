@@ -115,7 +115,12 @@ export class ProjectModel {
         if (!obj) return null;
         return {
             id: obj?.id,
-            name: obj?.name
+            key: obj?.key,
+            name: obj?.name,
+            environments: obj?.environments ? obj.environments.map(env => EnvironmentModel.toDto(env)) : [],
+            features: obj?.features ? obj.features.map(feat => FeatureModel.toDto(feat)) : [],
+            createdAt: obj?.createdAt,
+            updatedAt: obj?.updatedAt
         }
     }
 }

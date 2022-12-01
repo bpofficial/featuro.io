@@ -17,7 +17,7 @@
             "options": {
                 "cwd": "stacks/environment",
                 "color": true,
-                "command": "sls offline start --noPrependStageInUrl --stage=environments"
+                "command": "NODE_ENV=development sls offline start --noPrependStageInUrl --stage=environments"
             }
         },
         "deploy": {

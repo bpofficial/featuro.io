@@ -90,7 +90,11 @@ export class EnvironmentModel {
         if (!obj) return null;
         return {
             id: obj?.id,
-            name: obj?.name
+            key: obj?.key,
+            name: obj?.name,
+            apiKey: obj?.apiKey,
+            createdAt: obj?.createdAt,
+            updatedAt: obj?.updatedAt
         }
     }
 }

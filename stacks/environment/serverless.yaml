@@ -18,18 +18,23 @@ custom:
         number: 1
     serviceName: environments
     currentStage: ${opt:stage, 'environments'}
-    serverless-offline:
-        httpPort: 5000
-        lambdaPort: 5001
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
         sourcemap: true
-        sourcesContent: false
+        sourcesContent: true
         plugins: esbuild.plugins.js
-
+    serverless-offline:
+        httpPort: 5000
+        lambdaPort: 5001
+    serverless-offline-ssm:
+        stages:
+            - ${self:custom.serviceName}
+        ssm:
+            '/app/environments/environments/DB_URI': ${env:DB_URI}
+            
 provider:
     name: aws
     runtime: nodejs16.x
@@ -43,11 +48,17 @@ provider:
         restApiRootResourceId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
         restApiResources:
-            'environments':
+            'projects':
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Environments-${self:custom.currentStage}
+            'projects/{projectId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-EnvironmentById-${self:custom.currentStage}
+            'projects/{projectId}/environments':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Environments-${self:custom.currentStage}
+            'projects/{projectId}/environments/{environmentId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-EnvironmentById-${self:custom.currentStage}
 
 functions:
-    - ${file(./sls/routes/environments.yaml)}
+    - ${file(./sls/routes/environment.yaml)}
 
 resources:
     - ${file(./sls/api.yaml)}

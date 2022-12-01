@@ -19,12 +19,15 @@ custom:
     currentStage: ${opt:stage, '<%= name %>s'}
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
         sourcemap: true
-        sourcesContent: false
+        sourcesContent: true
         plugins: esbuild.plugins.js
+    serverless-offline:
+        httpPort: XXX0
+        lambdaPort: XXX1
 provider:
     name: aws
     runtime: nodejs16.x
