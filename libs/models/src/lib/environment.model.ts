@@ -1,5 +1,5 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectModel } from "./project.model";
 import { object, string, number } from 'yup';
 
@@ -18,7 +18,8 @@ export class EnvironmentModel {
     @Column()
     apiKey: string;
 
-    @ManyToOne(() => ProjectModel, proj => proj.environments)
+    @ManyToOne(() => ProjectModel)
+    @JoinColumn({ name: 'project_id' })
     project: ProjectModel;
 
     @CreateDateColumn()

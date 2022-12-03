@@ -1,6 +1,7 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureConditionModel } from "./feature-condition.model";
+import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 
 @Entity('feature_condition-sets')
@@ -28,6 +29,9 @@ export class FeatureConditionSetModel {
      */
     @ManyToOne(() => FeatureVariantModel, vr => vr.id)
     variant: FeatureVariantModel;
+
+    @ManyToOne(() => FeatureEnvironmentModel, env => env.conditionSets)
+    featureEnvironment: FeatureEnvironmentModel;
 
     @CreateDateColumn()
     createdAt: Date;

@@ -20,15 +20,20 @@ custom:
     currentStage: ${opt:stage, 'features'}
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
         sourcemap: true
         sourcesContent: false
         plugins: esbuild.plugins.js
     serverless-offline:
-        httpPort: 6000
-        lambdaPort: 6001
+        httpPort: 9000
+        lambdaPort: 9001
+    serverless-offline-ssm:
+        stages:
+            - ${self:custom.serviceName}
+        ssm:
+            '/app/features/features/DB_URI': ${env:DB_URI}
 
 provider:
     name: aws
@@ -37,6 +42,7 @@ provider:
     memorySize: 128
     environment:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        DB_URI: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/DB_URI}
     apiGateway:
         restApiId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
@@ -47,7 +53,7 @@ provider:
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Features-${self:custom.currentStage}
 
 functions:
-    - ${file(./sls/routes/features.yaml)}
+    - ${file(./sls/routes/feature.yaml)}
 
 resources:
     - ${file(./sls/api.yaml)}

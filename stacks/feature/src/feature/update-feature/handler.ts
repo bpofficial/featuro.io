@@ -37,13 +37,16 @@ export const updateFeature: APIGatewayProxyHandler = async (event, _context): Pr
                 id: projectId, 
                 organisation: { id: userOrgId },
                 features: { id: featureId }
-            }, relations: ['organisation', 'features'] })
+            }, 
+            relations: [
+                'organisation', 
+                'features'
+            ]
+        })
 
         if (!project) return Forbidden();
 
         let feature = FeatureModel.fromObject(project.features[0])
-
-        feature = FeatureModel.fromObject(feature);
         feature.merge(update);
 
         let result = await repos.features.save(feature);

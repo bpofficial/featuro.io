@@ -24,15 +24,15 @@ export class FeatureModel {
 
     @OneToMany(
         () => FeatureEnvironmentModel, 
-        settings => settings.id, 
-        { eager: true, cascade: ['soft-remove', 'insert'] }
+        settings => settings.feature, 
+        { eager: true, cascade: true }
     )
     environmentSettings: FeatureEnvironmentModel[];
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
 
-    @ManyToOne(() => ProjectModel, project => project.features)
+    @ManyToOne(() => ProjectModel, proj => proj.features)
     project: ProjectModel;
 
     @CreateDateColumn()
@@ -73,8 +73,8 @@ export class FeatureModel {
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.name) this.name = obj.name;
-        if (obj.active) this.active = obj.active;
+        if (typeof obj.name === 'string') this.name = obj.name;
+        if (typeof obj.active === 'boolean') this.active = obj.active;
 
         // Deep-merging fields
         if (obj.environmentSettings) this.environmentSettings = 
@@ -115,17 +115,11 @@ export class FeatureModel {
             Object.assign(this, obj);
 
             if (this.environmentSettings) {
-                this.environmentSettings = this.environmentSettings.map(env => {
-                    return FeatureEnvironmentModel.fromObject(env);
-                });
-            } else {
-                this.environmentSettings = [];
+                this.environmentSettings = this.environmentSettings.map(FeatureEnvironmentModel.fromObject);
             }
 
             if (this.impressions) {
-                this.impressions = this.impressions.map(imp => FeatureImpressionModel.fromObject(imp))
-            } else {
-                this.impressions = [];
+                this.impressions = this.impressions.map(FeatureImpressionModel.fromObject);
             }
         }
     }
@@ -154,8 +148,8 @@ export class FeatureModel {
             name: obj?.name,
             key: obj?.key,
             active: obj?.active,
-            environmentSettings: obj?.environmentSettings ? FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) : {},
-            impressions: obj?.impressions ? obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) : []
+            environmentSettings: FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) ?? undefined,
+            // impressions: obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) || null
         }
     }
 

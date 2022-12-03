@@ -4,11 +4,16 @@ import { DataSource } from "typeorm";
 import { Entities } from '@featuro.io/entities';
 
 export async function createConnection() {
+    console.log("\n\n\n\n CREATING NEW CONNECTION \n\n\n")
     return new DataSource({ 
         type: 'mysql',
+        connectorPackage: 'mysql2',
+        driver: require('mysql2'),
         url: process.env.DB_URI,
         synchronize: process.env.NODE_ENV !== 'production',
-        entities: Entities
+        entities: Entities,
+        cache: true,
+        poolSize: 16000,
     }).initialize()
         .catch((error) => {
             console.error('Database connection failed!', error)

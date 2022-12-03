@@ -27,8 +27,8 @@ custom:
         sourcesContent: true
         plugins: esbuild.plugins.js
     serverless-offline:
-        httpPort: 5000
-        lambdaPort: 5001
+        httpPort: 8000
+        lambdaPort: 8001
     serverless-offline-ssm:
         stages:
             - ${self:custom.serviceName}
@@ -42,20 +42,15 @@ provider:
     memorySize: 128
     environment:
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        DB_URI: ${ssm:/app/${self:custom.currentStage}/${self:custom.serviceName}/DB_URI}
     apiGateway:
         restApiId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayId-${self:custom.currentStage}
         restApiRootResourceId:
             'Fn::ImportValue': ${self:custom.serviceName}-ApiGatewayIdRootResourceId-${self:custom.currentStage}
         restApiResources:
-            'projects':
+            'environments':
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Environments-${self:custom.currentStage}
-            'projects/{projectId}':
-                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-EnvironmentById-${self:custom.currentStage}
-            'projects/{projectId}/environments':
-                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Environments-${self:custom.currentStage}
-            'projects/{projectId}/environments/{environmentId}':
-                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-EnvironmentById-${self:custom.currentStage}
 
 functions:
     - ${file(./sls/routes/environment.yaml)}

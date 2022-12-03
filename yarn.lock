@@ -3110,6 +3110,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/k6@npm:^0":
+  version: 0.41.0
+  resolution: "@types/k6@npm:0.41.0"
+  checksum: efc027b5967f8fa1102eb7d0e4867d90bdbdec32153507da510827ccdc5a7a7fefac30703cfd31a8ad5550313a63a5948a369f7503490e9851f19c347bd531b5
+  languageName: node
+  linkType: hard
+
 "@types/keyv@npm:*":
   version: 4.2.0
   resolution: "@types/keyv@npm:4.2.0"
@@ -11011,6 +11018,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"k6@npm:^0.0.0":
+  version: 0.0.0
+  resolution: "k6@npm:0.0.0"
+  checksum: 13a6701565b36457326c77bddafd73d9137c016088961e9ce18e78a3a48b8b155f93775b8e12d6f21e226da21d8c1dfe3e6a130cd35409bce84c247746b1cd85
+  languageName: node
+  linkType: hard
+
 "keyv@npm:*, keyv@npm:^4.0.0":
   version: 4.5.1
   resolution: "keyv@npm:4.5.1"
@@ -12479,6 +12493,7 @@ __metadata:
     "@types/is-uuid": ^1
     "@types/jest": 28.1.1
     "@types/jsonwebtoken": ^8
+    "@types/k6": ^0
     "@types/luxon": ^3
     "@types/node": 16.11.7
     "@types/serverless": 3.12.8
@@ -12499,6 +12514,7 @@ __metadata:
     jest-environment-jsdom: 28.1.1
     jsonwebtoken: ^8.5.1
     jwks-rsa: ^3.0.0
+    k6: ^0.0.0
     lint-staged: 13.0.3
     luxon: ^3.1.0
     mysql2: ^2.3.3

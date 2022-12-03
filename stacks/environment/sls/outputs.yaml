@@ -19,18 +19,6 @@ Outputs:
         Export:
             Name: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
-    ApiGatewayResourceProjectsId:
-        Value:
-            Ref: ApiGatewayResourceProjectsPath
-        Export:
-            Name: ${self:custom.serviceName}-ApiPath-Projects-${self:custom.currentStage}
-
-    ApiGatewayResourceProjectById:
-        Value:
-            Ref: ApiGatewayResourceProjectByIdPath
-        Export:
-            Name: ${self:custom.serviceName}-ApiPath-ProjectById-${self:custom.currentStage}
-
     ApiGatewayResourceEnvironmentsId:
         Value:
             Ref: ApiGatewayResourceEnvironmentsPath

@@ -28,7 +28,13 @@ export const retrieveFeature: APIGatewayProxyHandler = async (event, _context): 
                 id: projectId, 
                 organisation: { id: userOrgId },
                 features: { id: featureId }
-            }, relations: ['organisation', 'features'] })
+            }, 
+            relations: [
+                'organisation', 
+                'features', 
+                'features.environmentSettings'
+            ]
+        })
 
         if (!project) return Forbidden();
 

@@ -5,5 +5,5 @@
         "types": ["node"]
     },
     "exclude": ["**/*.spec.ts"],
-    "include": ["**/*.ts", "src/__name__/create-__name__/handler.ts__tmpl__"]
+    "include": ["**/*.ts", "src/__name__/create-__name__/handler.ts__tmpl__", "src/feature/eval-feature/load-test.k6.js"]
 }

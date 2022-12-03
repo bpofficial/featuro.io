@@ -3,34 +3,46 @@ import { CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneT
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
 import { FeatureVariantModel } from "./feature-variant.model";
+import { FeatureModel } from "./feature.model";
 
 @Entity('feature_environments')
 export class FeatureEnvironmentModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => EnvironmentModel, env => env.id)
+    @ManyToOne(() => EnvironmentModel, { eager: true })
+    @JoinColumn()
     environment: EnvironmentModel;
 
     /**
      * When the feature is active in this environment, and there is a non-zero number of 
      * condition-sets, evaluate them to find the expected variant.
      */
-    @OneToMany(() => FeatureConditionSetModel, cd => cd.id, { nullable: true, cascade: ['insert'] })
+    @OneToMany(
+        () => FeatureConditionSetModel, 
+        cd => cd.featureEnvironment, 
+        { nullable: true, eager: true, cascade: ['insert'] }
+    )
     conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
 
     /**
      * When the feature is active in this environment, but there are no condition sets to evaluate,
      * use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['insert'] })
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @JoinColumn()
     activeDefaultVariant: FeatureVariantModel;
 
     /**
      * When the feature is in-active in this environment, use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { cascade: ['insert'] })
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @JoinColumn()
     inactiveVariant: FeatureVariantModel;
+
+    @ManyToOne(() => FeatureModel, feat => feat.environmentSettings)
+    @JoinColumn()
+    feature: FeatureModel;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -107,8 +119,10 @@ export class FeatureEnvironmentModel {
     }
 
     static fromArrayToObject(objs: Partial<FeatureEnvironmentModel>[]) {
+        if (!isArrayLike(objs)) return [];
         return objs.reduce((a, v) => {
-            a[v.environment.key] = v;
+            if (!v || !v.environment || !v.environment.key) return a;
+            a[v.environment.key] = FeatureEnvironmentModel.fromObject(v);
             return a;
         }, {} as Record<string, Partial<FeatureEnvironmentModel>>);
     }

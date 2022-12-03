@@ -1,5 +1,5 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
@@ -17,13 +17,13 @@ export class ProjectModel {
     @Column()
     name: string;
 
-    @OneToMany(() => EnvironmentModel, env => env.id, { cascade: ['soft-remove'] })
+    @OneToMany(() => EnvironmentModel, env => env.project, { cascade: ['soft-remove'] })
     environments: EnvironmentModel[];
 
     @OneToMany(() => FeatureModel, ft => ft.project, { cascade: ['soft-remove'] })
     features: FeatureModel[]
 
-    @ManyToOne(() => OrganisationModel, org => org.projects)
+    @ManyToOne(() => OrganisationModel)
     organisation: OrganisationModel;
 
     @CreateDateColumn()

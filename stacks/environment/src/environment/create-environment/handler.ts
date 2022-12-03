@@ -5,7 +5,7 @@ import { EnvironmentModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 import { customAlphabet } from 'nanoid';
 
-const createApiKey = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890', 24);
+const createApiKey = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890', 36);
 
 let connection: DataSource;
 export const createEnvironment: APIGatewayProxyHandler = async (
