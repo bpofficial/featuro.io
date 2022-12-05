@@ -2,7 +2,7 @@ import { EnvironmentModel } from './environment.model';
 import { FeatureConditionSetModel } from './feature-condition-set.model';
 import { FeatureConditionModel } from './feature-condition.model';
 import { FeatureEnvironmentModel } from './feature-environment.model';
-import { FeatureTargetModel } from './feature-target.model';
+import { ProjectTargetModel } from './project-target.model';
 import { FeatureVariantModel } from './feature-variant.model';
 import { FeatureModel } from './feature.model';
 import { OrganisationBillingModel } from './organisation-billing.model';
@@ -38,16 +38,16 @@ describe('OrganisationModel', () => {
                                 conditionSets: [
                                     new FeatureConditionSetModel({
                                         id: 'cond-set-1',
-                                        variant: new FeatureVariantModel(),
+                                        variants: [new FeatureVariantModel()],
                                         conditions: [
                                             new FeatureConditionModel({
-                                                target: new FeatureTargetModel()
+                                                target: new ProjectTargetModel()
                                             }),
                                             new FeatureConditionModel({
-                                                target: new FeatureTargetModel()
+                                                target: new ProjectTargetModel()
                                             }),
                                             new FeatureConditionModel({
-                                                target: new FeatureTargetModel()
+                                                target: new ProjectTargetModel()
                                             })
                                         ]
                                     })
@@ -78,9 +78,11 @@ describe('OrganisationModel', () => {
                                     conditionSets: [
                                         {
                                             id: 'cond-set-2',
-                                            variant: {
-                                                name: 'variant updated!'
-                                            }
+                                            variants: [{
+                                                variant: {
+                                                    name: 'variant updated!'
+                                                }
+                                            }]
                                         }
                                     ]
                                 }
@@ -94,6 +96,6 @@ describe('OrganisationModel', () => {
         console.log(org);
         expect(org.billing.stripeCustomerId).toBe('abc');
         expect(org.billing.stripeSubscriptionId).toBe('131');
-        expect(org.projects[0].features[0].environmentSettings[0].conditionSets[1].variant.name).toBe('variant updated!');
+        expect(org.projects[0].features[0].environmentSettings[0].conditionSets[1].variants[0].variant.name).toBe('variant updated!');
     })
 })

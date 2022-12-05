@@ -1,5 +1,5 @@
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FeatureTargetModel } from "./feature-target.model";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ProjectTargetModel } from "./project-target.model";
 import get from 'get-value';
 import { DateTime } from 'luxon';
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
@@ -10,8 +10,9 @@ export class FeatureConditionModel {
     id: string;
 
     // i.e. Date, Hour of the Day, Subdomain, Email etc...
-    @ManyToOne(() => FeatureTargetModel, target => target.id, { cascade: ['soft-remove'] })
-    target: FeatureTargetModel;
+    @ManyToOne(() => ProjectTargetModel, target => target.id)
+    @JoinColumn()
+    target: ProjectTargetModel;
 
     @Column()
     operator: string;
@@ -154,7 +155,7 @@ export class FeatureConditionModel {
         if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
             Object.assign(this, obj);
 
-            this.target = FeatureTargetModel.fromObject(this.target);
+            this.target = ProjectTargetModel.fromObject(this.target);
         }
     }
 

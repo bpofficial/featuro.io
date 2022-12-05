@@ -1,5 +1,5 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureConditionModel } from "./feature-condition.model";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
@@ -15,7 +15,7 @@ export class FeatureConditionSetModel {
     @Column({ nullable: true, default: null })
     description: string | null;
 
-    @Column('bool', { default: false })
+    @Column({ default: false })
     isDefaultSet: boolean;
 
     @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['soft-remove'] })
@@ -27,8 +27,19 @@ export class FeatureConditionSetModel {
      * So if the conditions were checking if the date is past X, and the date is X + 1,
      * then the evaluation would return this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id)
-    variant: FeatureVariantModel;
+    @ManyToMany(() => FeatureVariantModel)
+    @JoinTable({
+        name: 'condition_result_variants',
+        inverseJoinColumn: {
+            name: 'feature_variant',
+            referencedColumnName: 'id'
+        },
+        joinColumn: {
+            name: 'feature_condition_set',
+            referencedColumnName: 'id'
+        }
+    })
+    variants: FeatureVariantModel[];
 
     @ManyToOne(() => FeatureEnvironmentModel, env => env.conditionSets)
     featureEnvironment: FeatureEnvironmentModel;
@@ -62,7 +73,7 @@ export class FeatureConditionSetModel {
 
         // Deep-merging fields
         if (obj.conditions) this.conditions = FeatureConditionModel.mergeMany(this.conditions, obj.conditions);
-        if (obj.variant) this.variant.merge(obj.variant);
+        if (obj.variants) this.variants = FeatureVariantModel.mergeMany(this.variants, obj.variants);
 
         return this;
     }
@@ -75,13 +86,13 @@ export class FeatureConditionSetModel {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
-            if (this.conditions) {
-                this.conditions = this.conditions.map(vr => FeatureConditionModel.fromObject(vr))
-            } else {
-                this.conditions = [];
+            if (obj.conditions) {
+                this.conditions = this.conditions.map(FeatureConditionModel.fromObject)
             }
 
-            this.variant = FeatureVariantModel.fromObject(this.variant);
+            if (obj.variants) {
+                this.variants = obj.variants.map(FeatureVariantModel.fromObject);
+            }
         }
     }
 
@@ -99,13 +110,14 @@ export class FeatureConditionSetModel {
     }
 
     static toDto(obj?: Partial<FeatureConditionSetModel>) {
-        if (!obj) return null;
+        if (!isObjectLike(obj)) return null;
+
         return {
             id: obj?.id,
             name: obj?.name,
             description: obj?.description,
-            conditions: obj?.conditions ? obj.conditions.map(vr => FeatureConditionModel.toDto(vr)) : [],
-            variant: FeatureVariantModel.toDto(obj?.variant),
+            conditions: obj?.conditions?.length ? obj.conditions.map(FeatureConditionModel.toDto) : undefined,
+            variants: obj?.variants?.length ? obj.variants.map(FeatureVariantModel.toDto) : undefined,
             isDefaultSet: obj?.isDefaultSet ?? false
         }
     }

@@ -4,6 +4,8 @@ import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
 import { object, string, number } from 'yup';
+import { ProjectTargetModel } from "./project-target.model";
+import { ProjectVariantModel } from "./project-variant.model";
 
 @Entity('projects')
 export class ProjectModel {
@@ -22,6 +24,12 @@ export class ProjectModel {
 
     @OneToMany(() => FeatureModel, ft => ft.project, { cascade: ['soft-remove'] })
     features: FeatureModel[]
+
+    @OneToMany(() => ProjectTargetModel, pt => pt.project)
+    targets: ProjectTargetModel[];
+
+    @OneToMany(() => ProjectVariantModel, pv => pv.project)
+    variants: ProjectVariantModel[]
 
     @ManyToOne(() => OrganisationModel)
     organisation: OrganisationModel;
@@ -44,16 +52,18 @@ export class ProjectModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
+        if (obj.key) this.key = obj.key;
         if (obj.organisation) delete obj.organisation;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.key) this.key = obj.key;
         if (obj.name) this.name = obj.name;
         if (obj.environments) this.environments = EnvironmentModel.mergeMany(this.environments, obj.environments);
         if (obj.features) this.features = FeatureModel.mergeMany(this.features, obj.features);
+        if (obj.targets) this.targets = ProjectTargetModel.mergeMany(this.targets, obj.targets);
+        if (obj.variants) this.variants = ProjectVariantModel.mergeMany(this.variants, obj.variants);
 
         return this;
     }

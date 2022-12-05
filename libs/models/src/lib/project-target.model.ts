@@ -1,8 +1,13 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { ProjectModel } from "./project.model";
 
-@Entity('feature_targets')
-export class FeatureTargetModel {
+/**
+ * Dropdown options available when creating a condition (within a condition set).
+ * These are set at the project level and are reusable across features/environments etc.
+ */
+@Entity('project_targets')
+export class ProjectTargetModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -11,12 +16,6 @@ export class FeatureTargetModel {
 
     @Column()
     name: string;
-
-    @Column({ nullable: true })
-    owner: string | null;
-
-    @Column({ nullable: true })
-    project: string | null; // ??
 
     // This is the dot path used to find a value in the given api/sdk context.
     @Column({ nullable: true })
@@ -31,6 +30,10 @@ export class FeatureTargetModel {
     @Column({ default: false })
     isSystem: boolean;
 
+    @ManyToOne(() => ProjectModel)
+    @JoinColumn()
+    project: ProjectModel;
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -41,57 +44,55 @@ export class FeatureTargetModel {
     deletedAt: Date;
 
     toDto() {
-        return FeatureTargetModel.toDto(this);
+        return ProjectTargetModel.toDto(this);
     }
 
-    merge(obj: DeepPartial<FeatureTargetModel>) {
+    merge(obj: DeepPartial<ProjectTargetModel>) {
         if (!isObjectLike(obj)) return this;
 
         // Disallowed fields
         if (obj.id) delete obj.id;
+        if (obj.key) delete obj.key;
+        if (obj.project) delete obj.project;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.key) this.key = obj.key;
         if (obj.name) this.name = obj.name;
-        if (obj.owner) this.owner = obj.owner;
-        if (obj.project) this.project = obj.project;
         if (obj.valueKey) this.valueKey = obj.valueKey;
         if (obj.type) this.type = obj.type;
         if (obj.caseSensitive) this.caseSensitive = obj.caseSensitive;
-        if (obj.isSystem) this.isSystem = obj.isSystem;
+        if (typeof obj.isSystem === 'boolean') this.isSystem = obj.isSystem;
         
         return this;
     }
 
-    constructor(obj?: Partial<FeatureTargetModel>) {
+    constructor(obj?: Partial<ProjectTargetModel>) {
         if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
             Object.assign(this, obj);
         }
     }
 
-    static mergeMany(a: Partial<FeatureTargetModel[]> = [], b: Partial<FeatureTargetModel>[] = []) {
+    static mergeMany(a: DeepPartial<ProjectTargetModel[]> = [], b: DeepPartial<ProjectTargetModel>[] = []): ProjectTargetModel[] {
         if (!isArrayLike(a) || !isArrayLike(b)) return;
-        return joinArraysByIdWithAssigner(FeatureTargetModel.merge, a, b);
+        return joinArraysByIdWithAssigner<ProjectTargetModel>(ProjectTargetModel.merge, a, b);
     }
 
-    static merge(a: Partial<FeatureTargetModel>, b: Partial<FeatureTargetModel>) {
-        return new FeatureTargetModel(a).merge(b);
+    static merge(a: Partial<ProjectTargetModel>, b: Partial<ProjectTargetModel>) {
+        return new ProjectTargetModel(a).merge(b);
     }
 
     static fromObject(result: any) {
-        return new FeatureTargetModel(result);
+        return new ProjectTargetModel(result);
     }
 
-    static toDto(obj?: Partial<FeatureTargetModel>) {
+    static toDto(obj?: Partial<ProjectTargetModel>) {
         if (!obj) return null;
         return {
             id: obj?.id,
             key: obj?.key,
             name: obj?.name,
-            owner: obj?.owner,
             project: obj?.project,
             type: obj?.type,
             createdAt: obj?.createdAt?.toISOString?.() ?? null,

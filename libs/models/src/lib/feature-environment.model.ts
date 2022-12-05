@@ -71,15 +71,15 @@ export class FeatureEnvironmentModel {
     }
 
     evaluate(active: boolean, context: Record<string, any>) {
-        if (!active) return this.inactiveVariant;
+        if (!active) return [this.inactiveVariant];
 
         if (this.conditionSets) {
             const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
             if (sets.length) {
-                return sets[0].variant;
+                return sets[0].variants;
             }
         }
-        return this.activeDefaultVariant;
+        return [this.activeDefaultVariant];
     }
 
     constructor(obj?: DeepPartial<FeatureEnvironmentModel>) {
