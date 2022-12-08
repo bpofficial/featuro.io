@@ -1,5 +1,6 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { bool, object, string } from "yup";
 import { ProjectModel } from "./project.model";
 
 /**
@@ -47,6 +48,22 @@ export class ProjectTargetModel {
         return ProjectTargetModel.toDto(this);
     }
 
+    validate(softValidate = false): true | string[] {
+        try {
+            const schema = object({
+                key: string(),
+                name: softValidate ? string() : string().required(),
+                type: softValidate ? string() : string().required(),
+                valueKey: string(),
+                caseSensitive: bool(),
+            });
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
+    }
     merge(obj: DeepPartial<ProjectTargetModel>) {
         if (!isObjectLike(obj)) return this;
 
@@ -68,10 +85,8 @@ export class ProjectTargetModel {
         return this;
     }
 
-    constructor(obj?: Partial<ProjectTargetModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
-            Object.assign(this, obj);
-        }
+    constructor(obj?: unknown) {
+        if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
     static mergeMany(a: DeepPartial<ProjectTargetModel[]> = [], b: DeepPartial<ProjectTargetModel>[] = []): ProjectTargetModel[] {
@@ -83,12 +98,16 @@ export class ProjectTargetModel {
         return new ProjectTargetModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new ProjectTargetModel(result);
     }
 
+    static fromObjectArray(results: unknown[]) {
+        return results.map(r => ProjectTargetModel.fromObject(r))
+    }
+
     static toDto(obj?: Partial<ProjectTargetModel>) {
-        if (!obj) return null;
+        if (!isObjectLike(obj)) return null;
         return {
             id: obj?.id,
             key: obj?.key,

@@ -20,18 +20,18 @@ export const updateFeature: APIGatewayProxyHandler = async (event, _context): Pr
 
         if (!permissions || !permissions.includes('update:feature')) return Forbidden();
 
-        connection = connection || await createConnection();
-        const repos = {
-            projects: connection.getRepository(ProjectModel),
-            features: connection.getRepository(FeatureModel),
-        }
-
         const body = JSON.parse(event.body);
         const update = FeatureModel.fromObject(body);
         
         let vResult: true | any[];
         if ((vResult = update.validate(true)) !== true) return BadRequest(vResult)
 
+        connection = connection || await createConnection();
+        const repos = {
+            projects: connection.getRepository(ProjectModel),
+            features: connection.getRepository(FeatureModel),
+        }
+        
         const project = await repos.projects.findOne({ 
             where: { 
                 id: projectId, 

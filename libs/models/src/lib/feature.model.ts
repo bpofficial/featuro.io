@@ -51,6 +51,7 @@ export class FeatureModel {
     validate(softValidate = false): true | string[] {
         try {
             const schema = object({
+                key: string(),
                 name: softValidate ? string() : string().required(),
                 active: bool()
             });

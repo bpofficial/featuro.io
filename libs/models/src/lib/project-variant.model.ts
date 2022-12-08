@@ -1,5 +1,6 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { object, string } from "yup";
 import { ProjectModel } from "./project.model";
 
 @Entity('project_variants')
@@ -31,6 +32,21 @@ export class ProjectVariantModel {
 
     toDto() {
         return ProjectVariantModel.toDto(this);
+    }
+
+    validate(softValidate = false): true | string[] {
+        try {
+            const schema = object({
+                key: string(),
+                name: softValidate ? string() : string().required(),
+                description: string(),
+            });
+        
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     merge(obj: DeepPartial<ProjectVariantModel>) {
@@ -67,6 +83,10 @@ export class ProjectVariantModel {
 
     static fromObject(result: any) {
         return new ProjectVariantModel(result);
+    }
+
+    static fromObjectArray(results: any[]) {
+        return results.map(r => ProjectVariantModel.fromObject(r))
     }
 
     static toDto(obj?: Partial<ProjectVariantModel>) {

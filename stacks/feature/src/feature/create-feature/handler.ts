@@ -21,6 +21,12 @@ export const createFeature: APIGatewayProxyHandler = async (
 
         if (!permissions || !permissions.includes('create:feature')) return Forbidden();
 
+        const body = JSON.parse(event.body);
+        const feature = FeatureModel.fromObject(body)
+        
+        let vResult: true | any[];
+        if ((vResult = feature.validate()) !== true) return BadRequest(vResult);
+
         connection = connection || await createConnection();
         const repos = {
             projects: connection.getRepository(ProjectModel),
@@ -31,26 +37,22 @@ export const createFeature: APIGatewayProxyHandler = async (
             where: { 
                 id: projectId, 
                 organisation: { id: userOrgId } 
-            }, relations: ['organisation', 'environments'] })
+            }, 
+            relations: [
+                'organisation', 
+                'environments',
+                'variants'
+            ] 
+        })
 
         if (!project) return Forbidden();
 
-        const body = JSON.parse(event.body);
-        const feature = FeatureModel.fromObject(body)
-        
-        let vResult: true | any[];
-        if ((vResult = feature.validate()) !== true) return BadRequest(vResult);
-
         feature.addEnvironments(project.environments, {
             activeDefaultVariant: new FeatureVariantModel({
-                key: 'on',
-                name: 'On',
-                description: 'Default variant indicating that the feature is active.'
+                variant: project.variants.find(v => v.key === 'on')
             }),
             inactiveVariant: new FeatureVariantModel({
-                key: 'off',
-                name: 'Off',
-                description: 'Default variant indicating that the feature is inactive.'
+                variant: project.variants.find(v => v.key === 'off')
             })
         });
 
