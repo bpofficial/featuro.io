@@ -10,7 +10,7 @@ export class FeatureConditionModel {
     id: string;
 
     // i.e. Date, Hour of the Day, Subdomain, Email etc...
-    @ManyToOne(() => ProjectTargetModel, target => target.id)
+    @ManyToOne(() => ProjectTargetModel)
     @JoinColumn()
     target: ProjectTargetModel;
 
@@ -152,7 +152,7 @@ export class FeatureConditionModel {
     }
 
     constructor(obj?: DeepPartial<FeatureConditionModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
             this.target = ProjectTargetModel.fromObject(this.target);

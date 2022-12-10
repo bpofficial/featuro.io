@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinTa
 import { FeatureConditionModel } from "./feature-condition.model";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
+import { FeatureModel } from "./feature.model";
 
 @Entity('feature_condition-sets')
 export class FeatureConditionSetModel {
@@ -15,14 +16,12 @@ export class FeatureConditionSetModel {
     @Column({ nullable: true, default: null })
     description: string | null;
 
-    @Column({ default: false })
-    isDefaultSet: boolean;
-
     @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['soft-remove'] })
     conditions: FeatureConditionModel[];
 
     /**
-     * If the conditions are met and are truthy, this variant is returned
+     * If the conditions are met and are truthy, this variant is returned. If there's
+     * more than one 
      * 
      * So if the conditions were checking if the date is past X, and the date is X + 1,
      * then the evaluation would return this variant.
@@ -41,8 +40,8 @@ export class FeatureConditionSetModel {
     })
     variants: FeatureVariantModel[];
 
-    @ManyToOne(() => FeatureEnvironmentModel, env => env.conditionSets)
-    featureEnvironment: FeatureEnvironmentModel;
+    @ManyToOne(() => FeatureModel, env => env.conditionSets)
+    feature: FeatureModel;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -69,7 +68,6 @@ export class FeatureConditionSetModel {
         // Direct-update fields
         if (obj.name) this.name = obj.name;
         if (obj.description) this.description = obj.description;
-        if (obj.isDefaultSet) this.isDefaultSet = obj.isDefaultSet;
 
         // Deep-merging fields
         if (obj.conditions) this.conditions = FeatureConditionModel.mergeMany(this.conditions, obj.conditions);
@@ -118,7 +116,13 @@ export class FeatureConditionSetModel {
             description: obj?.description,
             conditions: obj?.conditions?.length ? obj.conditions.map(FeatureConditionModel.toDto) : undefined,
             variants: obj?.variants?.length ? obj.variants.map(FeatureVariantModel.toDto) : undefined,
-            isDefaultSet: obj?.isDefaultSet ?? false
         }
+    }
+
+    static flattenVariants(sets: FeatureConditionSetModel[]) {
+        return sets.reduce((arr, res) => {
+            arr = arr.concat(res.variants)
+            return arr;
+        }, [] as FeatureVariantModel[]);
     }
 }

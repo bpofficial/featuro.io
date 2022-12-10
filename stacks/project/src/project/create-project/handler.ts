@@ -2,7 +2,7 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, createConnection, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { ProjectModel } from 'libs/models/src/lib/project.model';
-import { ProjectVariantModel } from '@featuro.io/models';
+import { ProjectTargetModel, ProjectVariantModel } from '@featuro.io/models';
 
 let connection: DataSource;
 export const createProject: APIGatewayProxyHandler = async (
@@ -25,6 +25,22 @@ export const createProject: APIGatewayProxyHandler = async (
         if ((vResult = project.validate()) !== true) return BadRequest(vResult)
 
         project.organisation = userOrgId;
+
+        // Default targets
+        project.targets = [
+            new ProjectTargetModel({
+                isSystem: true,
+                key: 'hod',
+                name: 'Hour of the day',
+            }),
+            new ProjectTargetModel({
+                isSystem: true,
+                key: 'date',
+                name: 'Current Date',
+            })
+        ];
+
+        // Default variants
         project.variants = [
             new ProjectVariantModel({
                 key: 'on',

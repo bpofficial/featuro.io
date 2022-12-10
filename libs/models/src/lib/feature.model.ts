@@ -1,10 +1,10 @@
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureImpressionModel } from "./impression.model";
 import { ProjectModel } from "./project.model";
-import { object, string, number, bool } from 'yup';
+import { object, string } from 'yup';
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
 
@@ -19,15 +19,38 @@ export class FeatureModel {
     @Column()
     name: string;
 
-    @Column('bool', { default: false })
-    active: boolean;
-
     @OneToMany(
         () => FeatureEnvironmentModel, 
         settings => settings.feature, 
         { eager: true, cascade: true }
     )
     environmentSettings: FeatureEnvironmentModel[];
+
+    /**
+     * When the feature is active in this environment, and there is a non-zero number of 
+     * condition-sets, evaluate them to find the expected variant.
+     */
+     @OneToMany(
+        () => FeatureConditionSetModel, 
+        cd => cd.feature, 
+        { nullable: true, eager: true, cascade: ['insert'] }
+    )
+    conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
+
+    /**
+     * When the feature is active in this environment, but there are no condition sets to evaluate,
+     * use this variant.
+     */
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @JoinColumn()
+    activeDefaultVariant: FeatureVariantModel;
+
+    /**
+     * When the feature is in-active in this environment, use this variant.
+     */
+    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @JoinColumn()
+    inactiveVariant: FeatureVariantModel;
 
     @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
     impressions: FeatureImpressionModel[];
@@ -52,8 +75,7 @@ export class FeatureModel {
         try {
             const schema = object({
                 key: string(),
-                name: softValidate ? string() : string().required(),
-                active: bool()
+                name: softValidate ? string() : string().required()
             });
         
             schema.validateSync(this);
@@ -61,6 +83,23 @@ export class FeatureModel {
         } catch (err) {
             return err.errors || ['Unknown error'];
         }
+    }
+
+    evaluate(environment: string, context: Record<string, any>) {
+        const env = this.environmentSettings.find(env => env.environment.key === environment);
+        
+        if (!env.isActive) 
+            return [this.inactiveVariant];
+
+        if (this.conditionSets) {
+            const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
+            if (sets.length) {
+                const result = FeatureConditionSetModel.flattenVariants(sets);
+                return FeatureVariantModel.fromArrayToEvaluation(result);
+            }
+        }
+
+        return [this.activeDefaultVariant];
     }
 
     merge(obj: DeepPartial<FeatureModel>) {
@@ -75,7 +114,6 @@ export class FeatureModel {
 
         // Direct-update fields
         if (typeof obj.name === 'string') this.name = obj.name;
-        if (typeof obj.active === 'boolean') this.active = obj.active;
 
         // Deep-merging fields
         if (obj.environmentSettings) this.environmentSettings = 
@@ -85,25 +123,21 @@ export class FeatureModel {
         return this;
     }
 
-    evaluate(environment: string, context?: Record<string, any>) {
-        const env = this.environmentSettings.find(env => env.environment.key === environment);
-        return env.evaluate(this.active, context || {});
-    }
-
     /**
-     * 
      * @param environment The environment to be setup with the feature
-     * @param mergeParts A partial object containing values that are assignable to all environments (e.g. default variants)
+     * @param mergeParts A partial object containing values that are assignable to all environments
      */
     addEnvironment(environment: EnvironmentModel, mergeParts: Partial<FeatureEnvironmentModel> = {}) {
         if (!this.environmentSettings) this.environmentSettings = [];
 
         if (this.environmentSettings.findIndex(env => env.id === environment.id) === -1) {
             // Doesn't yet exist
-            this.environmentSettings.push(new FeatureEnvironmentModel({
-                ...mergeParts,
-                environment
-            }))
+            this.environmentSettings.push(
+                new FeatureEnvironmentModel({
+                    isActive: false, // Inactive by default
+                    environment
+                })
+            )
         }
     }
 
@@ -148,7 +182,6 @@ export class FeatureModel {
             id: obj?.id,
             name: obj?.name,
             key: obj?.key,
-            active: obj?.active,
             environmentSettings: FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) ?? undefined,
             // impressions: obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) || null
         }

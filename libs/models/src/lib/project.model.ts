@@ -25,7 +25,7 @@ export class ProjectModel {
     @OneToMany(() => FeatureModel, ft => ft.project, { cascade: ['soft-remove'] })
     features: FeatureModel[]
 
-    @OneToMany(() => ProjectTargetModel, pt => pt.project, { cascade: ['soft-remove'] })
+    @OneToMany(() => ProjectTargetModel, pt => pt.project, { cascade: ['soft-remove', 'insert'] })
     targets: ProjectTargetModel[];
 
     @OneToMany(() => ProjectVariantModel, pv => pv.project, { cascade: ['soft-remove', 'insert'] })

@@ -1,11 +1,11 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, createConnection, Forbidden, InternalServerError, NoContent, NotFound, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { FeatureModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const retrieveFeature: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
+export const deleteFeature: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         const featureId = event.pathParameters?.featureId;
@@ -18,11 +18,12 @@ export const retrieveFeature: APIGatewayProxyHandler = async (event, _context): 
         const userOrgId = identity.org;
         const permissions = identity.permissions;
 
-        if (!permissions || !permissions.includes('read:feature')) return Forbidden();
+        if (!permissions || !permissions.includes('delete:feature')) return Forbidden();
 
         connection = connection || await createConnection();
-        const repos = { 
-            projects: connection.getRepository(ProjectModel)
+        const repos = {
+            projects: connection.getRepository(ProjectModel),
+            features: connection.getRepository(FeatureModel),
         }
 
         const project = await repos.projects.findOne({ 
@@ -30,19 +31,13 @@ export const retrieveFeature: APIGatewayProxyHandler = async (event, _context): 
                 id: projectId, 
                 organisation: { id: userOrgId },
                 features: { id: featureId }
-            }, 
-            relations: [
-                'organisation', 
-                'features', 
-                'features.environmentSettings'
-            ]
-        })
+            }, relations: ['organisation', 'features'] })
 
         if (!project) return Forbidden();
 
-        const result = FeatureModel.fromObject(project.features[0])
+        await repos.features.softRemove(project.features[0]);
 
-        return Ok(result.toDto())
+        return NoContent()
     } catch (err) {
         return InternalServerError(err.message);
     }

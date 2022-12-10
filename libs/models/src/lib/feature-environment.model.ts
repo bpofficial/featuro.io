@@ -1,5 +1,5 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
 import { FeatureVariantModel } from "./feature-variant.model";
@@ -9,36 +9,13 @@ import { FeatureModel } from "./feature.model";
 export class FeatureEnvironmentModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
+    
+    @Column()
+    isActive: boolean;
 
     @ManyToOne(() => EnvironmentModel, { eager: true })
     @JoinColumn()
     environment: EnvironmentModel;
-
-    /**
-     * When the feature is active in this environment, and there is a non-zero number of 
-     * condition-sets, evaluate them to find the expected variant.
-     */
-    @OneToMany(
-        () => FeatureConditionSetModel, 
-        cd => cd.featureEnvironment, 
-        { nullable: true, eager: true, cascade: ['insert'] }
-    )
-    conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
-
-    /**
-     * When the feature is active in this environment, but there are no condition sets to evaluate,
-     * use this variant.
-     */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
-    @JoinColumn()
-    activeDefaultVariant: FeatureVariantModel;
-
-    /**
-     * When the feature is in-active in this environment, use this variant.
-     */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
-    @JoinColumn()
-    inactiveVariant: FeatureVariantModel;
 
     @ManyToOne(() => FeatureModel, feat => feat.environmentSettings)
     @JoinColumn()
@@ -62,36 +39,15 @@ export class FeatureEnvironmentModel {
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
 
-        // Deep-merging fields
-        if (obj.environment) this.environment.merge(obj.environment);
-        if (obj.conditionSets) this.conditionSets = 
-            FeatureConditionSetModel.mergeMany(this.conditionSets, obj.conditionSets);
+        if (typeof obj.isActive === 'boolean') this.isActive = obj.isActive;
 
         return this;
-    }
-
-    evaluate(active: boolean, context: Record<string, any>) {
-        if (!active) return [this.inactiveVariant];
-
-        if (this.conditionSets) {
-            const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
-            if (sets.length) {
-                return sets[0].variants;
-            }
-        }
-        return [this.activeDefaultVariant];
     }
 
     constructor(obj?: DeepPartial<FeatureEnvironmentModel>) {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
-
-            if (this.conditionSets) {
-                this.conditionSets = this.conditionSets.map(cd => FeatureConditionSetModel.fromObject(cd));
-            } else {
-                this.conditionSets = [];
-            }
-
+            this.feature = FeatureModel.fromObject(this.feature);
             this.environment = EnvironmentModel.fromObject(this.environment);
         }
     }
@@ -112,9 +68,8 @@ export class FeatureEnvironmentModel {
     static toDto(obj?: Partial<FeatureEnvironmentModel>) {
         if (!obj) return null;
         return {
-            id: obj?.id,
-            environment: EnvironmentModel.toDto(obj?.environment),
-            conditionSets: obj?.conditionSets ? obj.conditionSets.map(rule => FeatureConditionSetModel.toDto(rule)) : []
+            isActive: obj.isActive,
+            environment: EnvironmentModel.toDto(obj?.environment)
         }
     }
 

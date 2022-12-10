@@ -2,6 +2,7 @@ import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } fr
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { bool, object, string } from "yup";
 import { ProjectModel } from "./project.model";
+import { DateTime } from 'luxon';
 
 /**
  * Dropdown options available when creating a condition (within a condition set).
@@ -19,6 +20,7 @@ export class ProjectTargetModel {
     name: string;
 
     // This is the dot path used to find a value in the given api/sdk context.
+    // If it's null & isSystem is true, then the calculation will use the key of this target (hod, date etc)
     @Column({ nullable: true })
     valueKey: string | null;
 
@@ -85,7 +87,7 @@ export class ProjectTargetModel {
         return this;
     }
 
-    constructor(obj?: unknown) {
+    constructor(obj?: DeepPartial<ProjectTargetModel>) {
         if (isObjectLike(obj)) Object.assign(this, obj);
     }
 

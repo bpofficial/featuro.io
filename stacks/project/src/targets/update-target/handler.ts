@@ -21,13 +21,15 @@ export const updateTarget: APIGatewayProxyHandler = async (
         const userOrgId = identity.org;
         const permissions = identity.permissions;
 
-        if (!permissions || !permissions.includes('update:project')) return Forbidden();
+        if (!permissions || !permissions.includes('update:project')) 
+            return Forbidden();
 
         const body = JSON.parse(event.body);
         const update = ProjectTargetModel.fromObject(body);
         
-        let vResult: true | any[];
-        if ((vResult = update.validate(true)) !== true) return BadRequest(vResult)
+        let vResult: true | string[];
+        if ((vResult = update.validate(true)) !== true) 
+            return BadRequest(vResult)
 
         connection = connection || await createConnection();
         const repos = {
@@ -35,7 +37,7 @@ export const updateTarget: APIGatewayProxyHandler = async (
             targets: connection.getRepository(ProjectTargetModel)
         }
 
-        let project = await repos.projects.findOne({ 
+        const project = await repos.projects.findOne({ 
             where: { 
                 id: projectId, 
                 organisation: { id: userOrgId},

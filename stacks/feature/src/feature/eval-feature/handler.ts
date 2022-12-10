@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, createConnection, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { FeatureModel, FeatureVariantModel, ProjectModel } from '@featuro.io/models';
+import { ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
@@ -12,7 +12,6 @@ export const evaluateFeature: APIGatewayProxyHandler = async (
     try { 
         const projectId = event.pathParameters?.projectId;
         const featureId = event.pathParameters?.featureId;
-
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')
         if (!isUUID.v4(featureId)) return BadRequest('Invalid feature id')
 
@@ -28,11 +27,15 @@ export const evaluateFeature: APIGatewayProxyHandler = async (
         }
 
         connection = connection || await createConnection();
-
         const project = await connection.getRepository(ProjectModel).findOne({
             where: {
                 features: {
-                    id: featureId
+                    id: featureId,
+                    environmentSettings: {
+                        environment: {
+                            apiKey: identity.toString()
+                        }
+                    }
                 },
             },
             cache: {
@@ -41,17 +44,16 @@ export const evaluateFeature: APIGatewayProxyHandler = async (
             },
             relations: [
                 'features', 
-                'features.environmentSettings'
+                'features.environmentSettings',
+                'features.environmentSettings.environment'
             ]
         })
 
         const feature = project.features[0]
-        const environment = project.features[0].environmentSettings
-            .find(settings => settings.environment.apiKey === identity.toString());
+        const environment = project.features[0].environmentSettings[0]
+        const result = feature.evaluate(environment.id, context);
 
-        const result = environment.evaluate(feature.active, context);
-
-        return Ok(result.toDto());
+        return Ok(result);
     } catch (err) {
         console.debug(err);
         return InternalServerError(err.message);

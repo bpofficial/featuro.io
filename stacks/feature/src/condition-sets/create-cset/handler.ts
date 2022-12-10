@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, createConnection, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { FeatureModel, ProjectModel } from '@featuro.io/models';
+import { FeatureModel, FeatureVariantModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
@@ -47,10 +47,20 @@ export const createFeature: APIGatewayProxyHandler = async (
 
         if (!project) return Forbidden();
 
-        feature.addEnvironments(project.environments);
+        feature.addEnvironments(project.environments, {
+            activeDefaultVariant: new FeatureVariantModel({
+                variant: project.variants.find(v => v.key === 'on')
+            }),
+            inactiveVariant: new FeatureVariantModel({
+                variant: project.variants.find(v => v.key === 'off')
+            })
+        });
+
+        feature.active = false;
         feature.project = project;
 
         let result = await repos.features.save(feature);
+
         result = FeatureModel.fromObject(result);
 
         return Created(result.toDto());

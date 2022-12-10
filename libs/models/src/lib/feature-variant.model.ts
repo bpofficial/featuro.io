@@ -73,4 +73,33 @@ export class FeatureVariantModel {
             updatedAt: obj.updatedAt
         }
     }
+
+    static toResult(obj: FeatureVariantModel) {
+        return {
+            variant: obj.variant.key,
+            split: obj.split
+        }
+    }
+
+    static fromArrayToEvaluation(variants: FeatureVariantModel[]) {
+        let length = variants.length;
+        let countHasSplit = 0;
+        let totalSplitVal = 0;
+
+        return variants
+            .map(variant => {
+                if (typeof variant.split === 'number') {
+                    countHasSplit++;
+                    totalSplitVal += variant.split; // += 0.5 or 0.25 or 0.1 etc etc etc
+                }
+                return variant
+            }).map(variant => {
+                if (typeof variant.split !== 'number') {
+                    // calculate the split of variants that don't have split percentages
+                    // by the remaining total % after variants that do have split percentages.
+                    variant.split = (1 - totalSplitVal) / (length - countHasSplit);
+                }
+                return FeatureVariantModel.toResult(variant);
+            });
+    }
 }
