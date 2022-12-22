@@ -1,14 +1,12 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Forbidden, InternalServerError, NoContent, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, NoContent, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { ProjectModel, ProjectVariantModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
+import { createConnection } from '@feature.io/db';
 
 let connection: DataSource;
-export const updateVariant: APIGatewayProxyHandler = async (
-    event,
-    _context
-): Promise<APIGatewayProxyResult> => {
+export const updateVariant: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         const variantId = event.pathParameters?.variantId;
@@ -35,7 +33,7 @@ export const updateVariant: APIGatewayProxyHandler = async (
             variants: connection.getRepository(ProjectVariantModel)
         }
 
-        let project = await repos.projects.findOne({ 
+        const project = await repos.projects.findOne({ 
             where: { 
                 id: projectId, 
                 organisation: { id: userOrgId},
@@ -49,7 +47,7 @@ export const updateVariant: APIGatewayProxyHandler = async (
         
         if (!project) return Forbidden();
 
-        let variant = ProjectVariantModel.fromObject(project.variants[0]);
+        const variant = ProjectVariantModel.fromObject(project.variants[0]);
         variant.merge(update);
 
         await repos.variants.save(variant);

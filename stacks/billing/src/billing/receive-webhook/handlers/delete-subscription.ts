@@ -1,4 +1,4 @@
-import { createConnection } from "@featuro.io/common";
+import { createConnection } from '@feature.io/db';
 import { OrganisationModel } from "@featuro.io/models";
 import { DataSource } from "typeorm";
 

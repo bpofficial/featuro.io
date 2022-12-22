@@ -1,12 +1,13 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Created, DeepPartial, InternalServerError, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Created, DeepPartial, InternalServerError, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { OrganisationBillingModel, OrganisationLimitsModel, OrganisationModel } from '@featuro.io/models';
+import { createConnection } from '@feature.io/db';
 import { stripe } from '@featuro.io/stripe';
 import Stripe from 'stripe';
 
 let connection: DataSource;
-export const createOrganisation: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
+export const createOrganisation: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         connection = connection || await createConnection();
         const repos = {

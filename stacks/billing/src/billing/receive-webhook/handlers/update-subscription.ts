@@ -1,4 +1,4 @@
-import { createConnection } from "@featuro.io/common";
+import { createConnection } from '@feature.io/db';
 import { OrganisationBillingModel, OrganisationLimitsModel, OrganisationModel } from "@featuro.io/models";
 import { DataSource } from "typeorm";
 
@@ -16,7 +16,7 @@ export async function updateSubscription(data: Record<string, any>, subscription
         let org = await repos.organisations.findOne({ where: { id: organisationId }, relations: ['billing', 'limits'] });
         org = OrganisationModel.fromObject(org);
 
-        let queue = [];
+        const queue = [];
 
         if (!org.billing.stripePriceId || org.billing.stripePriceId !== data.plan.id) {
             org.billing.stripePriceId = data.plan.id;

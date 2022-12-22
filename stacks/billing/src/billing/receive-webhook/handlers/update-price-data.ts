@@ -1,4 +1,4 @@
-import { createConnection } from "@featuro.io/common";
+import { createConnection } from '@feature.io/db';
 import { OrganisationLimitsModel, OrganisationModel } from "@featuro.io/models";
 import Stripe from "stripe";
 import { DataSource } from "typeorm";

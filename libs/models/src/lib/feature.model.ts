@@ -27,33 +27,37 @@ export class FeatureModel {
     environmentSettings: FeatureEnvironmentModel[];
 
     /**
-     * When the feature is active in this environment, and there is a non-zero number of 
+     * When the feature is active in an environment, and there is a non-zero number of 
      * condition-sets, evaluate them to find the expected variant.
      */
      @OneToMany(
         () => FeatureConditionSetModel, 
         cd => cd.feature, 
-        { nullable: true, eager: true, cascade: ['insert'] }
+        { nullable: true, eager: true, cascade: ['soft-remove'] }
     )
     conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
+
+    @OneToMany(
+        () => FeatureImpressionModel, 
+        imp => imp.feature, 
+        { cascade: ['soft-remove'] },
+    )
+    impressions: FeatureImpressionModel[];
 
     /**
      * When the feature is active in this environment, but there are no condition sets to evaluate,
      * use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @ManyToOne(() => FeatureVariantModel, { eager: true })
     @JoinColumn()
     activeDefaultVariant: FeatureVariantModel;
 
     /**
      * When the feature is in-active in this environment, use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, vr => vr.id, { eager: true, cascade: ['insert'] })
+    @ManyToOne(() => FeatureVariantModel, { eager: true })
     @JoinColumn()
     inactiveVariant: FeatureVariantModel;
-
-    @OneToMany(() => FeatureImpressionModel, imp => imp.feature)
-    impressions: FeatureImpressionModel[];
 
     @ManyToOne(() => ProjectModel, proj => proj.features)
     project: ProjectModel;
@@ -87,9 +91,9 @@ export class FeatureModel {
 
     evaluate(environment: string, context: Record<string, any>) {
         const env = this.environmentSettings.find(env => env.environment.key === environment);
-        
+
         if (!env.isActive) 
-            return [this.inactiveVariant];
+            return FeatureVariantModel.fromArrayToEvaluation([this.inactiveVariant]);
 
         if (this.conditionSets) {
             const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
@@ -99,7 +103,7 @@ export class FeatureModel {
             }
         }
 
-        return [this.activeDefaultVariant];
+        return FeatureVariantModel.fromArrayToEvaluation([this.activeDefaultVariant]);
     }
 
     merge(obj: DeepPartial<FeatureModel>) {

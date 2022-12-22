@@ -1,9 +1,11 @@
+
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureConditionModel } from "./feature-condition.model";
-import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureModel } from "./feature.model";
+import { array, number, object, string } from "yup";
 
 @Entity('feature_condition-sets')
 export class FeatureConditionSetModel {
@@ -16,7 +18,7 @@ export class FeatureConditionSetModel {
     @Column({ nullable: true, default: null })
     description: string | null;
 
-    @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['soft-remove'] })
+    @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['insert', 'soft-remove'] })
     conditions: FeatureConditionModel[];
 
     /**
@@ -54,6 +56,16 @@ export class FeatureConditionSetModel {
 
     toDto() {
         return FeatureConditionSetModel.toDto(this);
+    }
+
+    validate(softValidate = false): true | string[] {
+        try {
+            const schema = FeatureConditionSetModel.getValidationSchema(!softValidate);
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     merge(obj: DeepPartial<FeatureConditionSetModel>) {
@@ -103,8 +115,12 @@ export class FeatureConditionSetModel {
         return new FeatureConditionSetModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureConditionSetModel(result);
+    }
+
+    static fromObjectArray(results: unknown[]) {
+        return results.map(r => FeatureModel.fromObject(r))
     }
 
     static toDto(obj?: Partial<FeatureConditionSetModel>) {
@@ -124,5 +140,29 @@ export class FeatureConditionSetModel {
             arr = arr.concat(res.variants)
             return arr;
         }, [] as FeatureVariantModel[]);
+    }
+
+    static getValidationSchema(strict = false) {
+        return object({
+            name: string()[strict ? 'required' : 'optional'](),
+            description: string()[strict ? 'required' : 'optional'](),
+            conditions: array(
+                object({
+                    target: object({
+                        id: string().required(),
+                    }),
+                    operator: string()[strict ? 'required' : 'optional'](),
+                    staticOperand: string()[strict ? 'required' : 'optional'](),
+                })
+            )[strict ? 'optional' : 'required'](),
+            variants: array(
+                object({
+                    split: number().optional(),
+                    variant: object({
+                        id: string().required()
+                    })
+                }).required()
+            )[strict ? 'optional' : 'required']()
+        });
     }
 }

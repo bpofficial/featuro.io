@@ -1,11 +1,12 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Forbidden, InternalServerError, NoContent, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, NoContent, Unauthorized } from '@featuro.io/common';
+import { createConnection } from '@feature.io/db';
 import { DataSource } from 'typeorm';
 import { OrganisationModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const updateOrganisation: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
+export const updateOrganisation: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         connection = connection || await createConnection();
         const repos = {
@@ -24,7 +25,7 @@ export const updateOrganisation: APIGatewayProxyHandler = async (event, _context
         if (orgId !== userOrgId) return Unauthorized();
         if (!permissions || !permissions.includes('update:organisation')) return Forbidden();
 
-        let org = await repos.organisations.findOne({ where: { id: orgId } })
+        const org = await repos.organisations.findOne({ where: { id: orgId } })
         if (!org) return Forbidden();
 
         const body = JSON.parse(event.body);

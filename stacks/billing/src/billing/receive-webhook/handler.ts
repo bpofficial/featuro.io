@@ -7,10 +7,7 @@ import { updatePriceData } from './handlers';
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-export const receiveWebhook: APIGatewayProxyHandler = async (
-    event,
-    _context
-): Promise<APIGatewayProxyResult> => {
+export const receiveWebhook: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const sig = event?.headers['Stripe-Signature'];
 

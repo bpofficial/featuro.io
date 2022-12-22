@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { DataSource } from "typeorm";
-import { Entities } from '@featuro.io/entities';
+import { Entities } from './entities';
 
 export async function createConnection() {
     console.log("\n\n\n\n CREATING NEW CONNECTION \n\n\n")

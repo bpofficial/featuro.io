@@ -1,8 +1,8 @@
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { bool, object, string } from "yup";
 import { ProjectModel } from "./project.model";
-import { DateTime } from 'luxon';
 
 /**
  * Dropdown options available when creating a condition (within a condition set).
@@ -24,7 +24,7 @@ export class ProjectTargetModel {
     @Column({ nullable: true })
     valueKey: string | null;
 
-    @Column({ enum: ['number', 'date', ], type: 'enum' })
+    @Column({ enum: ['number', 'date', 'string'], type: 'enum' })
     type: 'number' | 'date' | 'string' ;
 
     @Column({ default: false })
@@ -119,5 +119,15 @@ export class ProjectTargetModel {
             createdAt: obj?.createdAt?.toISOString?.() ?? null,
             updatedAt: obj?.updatedAt?.toISOString?.() ?? null,
         }
+    }
+
+    static getValidationSchema(strict = false) {
+        return object({
+            key: string()[strict ? 'required' : 'optional'](),
+            name: string()[strict ? 'required' : 'optional'](),
+            type: string()[strict ? 'required' : 'optional'](),
+            valueKey: string()[strict ? 'required' : 'optional'](),
+            caseSensitive: bool(),
+        });
     }
 }

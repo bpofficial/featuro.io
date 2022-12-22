@@ -1,14 +1,11 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { ProjectModel } from 'libs/models/src/lib/project.model';
-import { ProjectTargetModel, ProjectVariantModel } from '@featuro.io/models';
+import { ProjectModel, ProjectTargetModel, ProjectVariantModel } from '@featuro.io/models';
+import { createConnection } from '@feature.io/db';
 
 let connection: DataSource;
-export const createProject: APIGatewayProxyHandler = async (
-    event,
-    _context
-): Promise<APIGatewayProxyResult> => {
+export const createProject: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const identity = event.requestContext.authorizer?.context;
         if (!identity) return Unauthorized();

@@ -1,24 +1,28 @@
 /// AWS Policy Generator creates the proper access to the function.
+
+import { APIGatewayAuthorizerResult, PolicyDocument } from "aws-lambda";
+import { isObjectLike } from '@featuro.io/common';
+
 /// http://docs.aws.amazon.com/apigateway/latest/developerguide/use-custom-authorizer.html
 export class AWSPolicyGenerator {
-    static generate(principalId: string, effect: string, resource: string, context?: any) : any {
-        var authResponse: any = {};
+    static generate(principalId: string, effect: string, resource: string, context?: unknown): APIGatewayAuthorizerResult {
+        const authResponse: APIGatewayAuthorizerResult = {} as APIGatewayAuthorizerResult;
 
         authResponse.principalId = principalId;
         if (effect && resource) {
-            var policyDocument: any = {};
-            policyDocument.Version = '2012-10-17';
-            policyDocument.Statement = [];
-            var statementOne: any = {};
-            statementOne.Action = 'execute-api:Invoke';
-            statementOne.Effect = effect;
-            statementOne.Resource = resource;
-            policyDocument.Statement[0] = statementOne;
+            const policyDocument: PolicyDocument = {
+                Version: '2012-10-17',
+                Statement: [{
+                    Action: 'execute-api:Invoke',
+                    Effect: effect,
+                    Resource: resource
+                }]
+            };
             authResponse.policyDocument = policyDocument;
         }
 
-        if (context) {
-           authResponse.context = context;
+        if (isObjectLike(context)) {
+           authResponse.context = context as APIGatewayAuthorizerResult['context'];
         }
 
         return authResponse;

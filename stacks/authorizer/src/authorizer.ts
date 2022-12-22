@@ -8,15 +8,15 @@ export class Authorizer {
         private audience: string) {
     }
 
-    public async authorize(token: string): Promise<jwt.JwtPayload> {
-        let decoded: any = jwt.decode(token, { complete: true });
+    public async authorize(token: string): Promise<string | jwt.JwtPayload> {
+        const decoded = jwt.decode(token, { complete: true });
         return this.getKey(decoded.header.kid)
-            .then(x => {
-                return this.verify(token, x);
+            .then(result => {
+                return this.verify(token, result);
             });
     }
 
-    private getKey(kid:any): Promise<string> {
+    private getKey(kid: string): Promise<string> {
         const client = JwksRsa({ jwksUri: this.jwksUri });
 
         return new Promise((resolve, reject) => {
@@ -30,7 +30,7 @@ export class Authorizer {
         });
     }
 
-    private verify(token: string, cert: string): Promise<{}> {
+    private verify(token: string, cert: string): Promise<string | jwt.JwtPayload> {
         const options = {
             audience: this.audience
         };

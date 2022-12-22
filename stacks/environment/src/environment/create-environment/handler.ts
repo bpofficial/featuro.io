@@ -1,17 +1,15 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, createConnection, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { EnvironmentModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 import { customAlphabet } from 'nanoid';
+import { createConnection } from '@feature.io/db';
 
 const createApiKey = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890', 36);
 
 let connection: DataSource;
-export const createEnvironment: APIGatewayProxyHandler = async (
-    event,
-    _context
-): Promise<APIGatewayProxyResult> => {
+export const createEnvironment: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try { 
         const projectId = event.pathParameters?.projectId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')

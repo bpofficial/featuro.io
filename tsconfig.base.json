@@ -18,6 +18,7 @@
         "target": "es5", 
         "paths": {
             "@featuro.io/common": ["libs/common/src/index.ts"],
+            "@feature.io/db": ["libs/models/src/db.ts"],
             "@featuro.io/models": ["libs/models/src/index.ts"],
             "@featuro.io/node-sdk": ["libs/node-sdk/src/index.ts"],
             "@featuro.io/stripe": ["libs/common/src/stripe.ts"],

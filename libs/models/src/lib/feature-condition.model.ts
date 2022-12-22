@@ -1,8 +1,10 @@
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectTargetModel } from "./project-target.model";
 import get from 'get-value';
 import { DateTime } from 'luxon';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
+import { object, string } from "yup";
 
 @Entity('feature_conditions')
 export class FeatureConditionModel {
@@ -32,6 +34,16 @@ export class FeatureConditionModel {
 
     toDto() {
         return FeatureConditionModel.toDto(this);
+    }
+
+    validate(softValidate = false) {
+        try {
+            const schema = FeatureConditionModel.getValidationSchema(!softValidate);
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
     }
 
     merge(obj: DeepPartial<FeatureConditionModel>) {
@@ -122,29 +134,35 @@ export class FeatureConditionModel {
         if (type === this.target.type) {
             switch (this.target.type) {
                 case 'number':
-                    let na = Number(value);
-                    let nb = Number(this.staticOperand);
-                    return this.eval(na, nb, type, this.operator)
+                    {
+                        const na = Number(value);
+                        const nb = Number(this.staticOperand);
+                        return this.eval(na, nb, type, this.operator)
+                    }
                 case 'date':
-                    const diff = date.diff(DateTime.fromISO(this.staticOperand, { zone })).milliseconds;
-                    switch (this.operator) {
-                        case 'before':
-                            return diff < 0;
-                        case 'after':
-                            return diff >= 0;
+                    {
+                        const diff = date.diff(DateTime.fromISO(this.staticOperand, { zone })).milliseconds;
+                        switch (this.operator) {
+                            case 'before':
+                                return diff < 0;
+                            case 'after':
+                                return diff >= 0;
+                        }
+                        /* istanbul ignore next */
+                        break;
                     }
-                    /* istanbul ignore next */
-                    break;
                 case 'string':
-                    let sa: string = value;
-                    let sb: string = this.staticOperand;
+                    {
+                        let sa: string = value;
+                        let sb: string = this.staticOperand;
 
-                    if (!this.target.caseSensitive) {
-                        sa = value.toLowerCase();
-                        sb = this.staticOperand.toLowerCase();
+                        if (!this.target.caseSensitive) {
+                            sa = value.toLowerCase();
+                            sb = this.staticOperand.toLowerCase();
+                        }
+
+                        return this.eval(sa, sb, type, this.operator)
                     }
-
-                    return this.eval(sa, sb, type, this.operator)
             }
         }
         /* istanbul ignore next */
@@ -168,7 +186,7 @@ export class FeatureConditionModel {
         return new FeatureConditionModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureConditionModel(result);
     }
 
@@ -182,5 +200,13 @@ export class FeatureConditionModel {
             createdAt: obj?.createdAt?.toISOString?.() ?? null,
             updatedAt: obj?.updatedAt?.toISOString?.() ?? null
         }
+    }
+
+    static getValidationSchema(strict = false) { 
+        return object({
+            target: ProjectTargetModel.getValidationSchema(strict),
+            operator: string()[strict ? 'required' : 'optional'](),
+            staticOperand: string()[strict ? 'required' : 'optional']()
+        });
     }
 }

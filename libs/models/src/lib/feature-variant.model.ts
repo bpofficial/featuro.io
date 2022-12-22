@@ -1,3 +1,4 @@
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectVariantModel } from "./project-variant.model";
@@ -82,7 +83,7 @@ export class FeatureVariantModel {
     }
 
     static fromArrayToEvaluation(variants: FeatureVariantModel[]) {
-        let length = variants.length;
+        const length = variants.length;
         let countHasSplit = 0;
         let totalSplitVal = 0;
 
