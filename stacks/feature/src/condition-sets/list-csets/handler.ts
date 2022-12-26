@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
-import { DataSource } from 'typeorm';
 import { FeatureConditionSetModel, ProjectModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
 import { createConnection } from '@feature.io/db';
+import { DataSource } from 'typeorm';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
 export const listConditionSets: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
