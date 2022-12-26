@@ -30,3 +30,28 @@ Outputs:
             Ref: ApiGatewayResourceProjectByIdPath
         Export:
             Name: ${self:custom.serviceName}-ApiPath-ProjectById-${self:custom.currentStage}
+
+    ApiGatewayResourceTargets:
+        Value:
+            Ref: ApiGatewayResourceProjectByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-Targets-${self:custom.currentStage}
+
+    ApiGatewayResourceTargetsById:
+        Value:
+            Ref: ApiGatewayResourceProjectByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-TargetsById-${self:custom.currentStage}
+
+    ApiGatewayResourceVariants:
+        Value:
+            Ref: ApiGatewayResourceVariantsPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-Variants-${self:custom.currentStage}
+
+    ApiGatewayResourceVariantsById:
+        Value:
+            Ref: ApiGatewayResourceVariantsByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-VariantsById-${self:custom.currentStage}
+

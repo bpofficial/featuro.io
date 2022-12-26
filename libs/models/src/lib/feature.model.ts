@@ -48,14 +48,14 @@ export class FeatureModel {
      * When the feature is active in this environment, but there are no condition sets to evaluate,
      * use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, { eager: true })
+    @ManyToOne(() => FeatureVariantModel, { eager: true, cascade: true })
     @JoinColumn()
     activeDefaultVariant: FeatureVariantModel;
 
     /**
      * When the feature is in-active in this environment, use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, { eager: true })
+    @ManyToOne(() => FeatureVariantModel, { eager: true, cascade: true })
     @JoinColumn()
     inactiveVariant: FeatureVariantModel;
 
@@ -89,18 +89,17 @@ export class FeatureModel {
         }
     }
 
-    evaluate(environment: string, context: Record<string, any>) {
-        const env = this.environmentSettings.find(env => env.environment.key === environment);
-
+    evaluate(env: FeatureEnvironmentModel, context: Record<string, unknown> = {}) {
         if (!env.isActive) 
             return FeatureVariantModel.fromArrayToEvaluation([this.inactiveVariant]);
 
-        if (this.conditionSets) {
+        if (this.conditionSets.length) {
             const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
             if (sets.length) {
                 const result = FeatureConditionSetModel.flattenVariants(sets);
                 return FeatureVariantModel.fromArrayToEvaluation(result);
             }
+            return FeatureVariantModel.fromArrayToEvaluation([this.inactiveVariant]);
         }
 
         return FeatureVariantModel.fromArrayToEvaluation([this.activeDefaultVariant]);
@@ -122,7 +121,12 @@ export class FeatureModel {
         // Deep-merging fields
         if (obj.environmentSettings) this.environmentSettings = 
             FeatureEnvironmentModel.mergeMany(this.environmentSettings, obj.environmentSettings);
-        if (obj.impressions) this.impressions = FeatureImpressionModel.mergeMany(this.impressions, obj.impressions);
+        
+        if (obj.impressions) this.impressions = 
+            FeatureImpressionModel.mergeMany(this.impressions, obj.impressions);
+
+        if (obj.conditionSets) this.conditionSets = 
+            FeatureConditionSetModel.mergeMany(this.conditionSets, obj.conditionSets);
 
         return this;
     }
@@ -131,7 +135,7 @@ export class FeatureModel {
      * @param environment The environment to be setup with the feature
      * @param mergeParts A partial object containing values that are assignable to all environments
      */
-    addEnvironment(environment: EnvironmentModel, mergeParts: Partial<FeatureEnvironmentModel> = {}) {
+    addEnvironment(environment: EnvironmentModel) {
         if (!this.environmentSettings) this.environmentSettings = [];
 
         if (this.environmentSettings.findIndex(env => env.id === environment.id) === -1) {
@@ -139,14 +143,15 @@ export class FeatureModel {
             this.environmentSettings.push(
                 new FeatureEnvironmentModel({
                     isActive: false, // Inactive by default
-                    environment
+                    environment,
+                    feature: this
                 })
             )
         }
     }
 
-    addEnvironments(environments: EnvironmentModel[], mergeParts: Partial<FeatureEnvironmentModel> = {}) {
-        environments.forEach(env => this.addEnvironment(env, mergeParts))
+    addEnvironments(environments: EnvironmentModel[]) {
+        environments.forEach(env => this.addEnvironment(env))
     }
 
     constructor(obj: DeepPartial<FeatureModel>) {
@@ -157,6 +162,10 @@ export class FeatureModel {
                 this.environmentSettings = this.environmentSettings.map(FeatureEnvironmentModel.fromObject);
             }
 
+            if (this.conditionSets) {
+                this.conditionSets = this.conditionSets.map(FeatureConditionSetModel.fromObject);
+            }
+
             if (this.impressions) {
                 this.impressions = this.impressions.map(FeatureImpressionModel.fromObject);
             }
@@ -164,7 +173,7 @@ export class FeatureModel {
     }
 
     static mergeMany(a: DeepPartial<FeatureModel[]> = [], b: DeepPartial<FeatureModel>[] = []): FeatureModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureModel[];
         return joinArraysByIdWithAssigner<FeatureModel>(FeatureModel.merge, a, b);
     }
 
@@ -172,11 +181,11 @@ export class FeatureModel {
         return new FeatureModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureModel(result);
     }
 
-    static fromObjectArray(results: any[]) {
+    static fromObjectArray(results: unknown[]) {
         return results.map(r => FeatureModel.fromObject(r))
     }
 
@@ -185,9 +194,7 @@ export class FeatureModel {
         return {
             id: obj?.id,
             name: obj?.name,
-            key: obj?.key,
-            environmentSettings: FeatureEnvironmentModel.fromArrayToObject(obj?.environmentSettings) ?? undefined,
-            // impressions: obj.impressions.map(imp => FeatureImpressionModel.toDto(imp)) || null
+            key: obj?.key
         }
     }
 

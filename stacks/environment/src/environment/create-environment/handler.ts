@@ -33,7 +33,10 @@ export const createEnvironment: APIGatewayProxyHandler = async (event): Promise<
                 id: projectId, 
                 organisation: { id: userOrgId } 
             }, 
-            relations: ['organisation', 'environments'] 
+            relations: [
+                'organisation', 
+                'environments'
+            ] 
         })
 
         if (!project) return Forbidden();
@@ -41,7 +44,7 @@ export const createEnvironment: APIGatewayProxyHandler = async (event): Promise<
         const body = JSON.parse(event.body);
         const environment = EnvironmentModel.fromObject(body)
         
-        let vResult: true | any[];
+        let vResult: true | string[];
         if ((vResult = environment.validate()) !== true) return BadRequest(vResult);
 
         environment.project = project;

@@ -45,13 +45,17 @@ export class FeatureVariantModel {
     }
 
     constructor(obj?: Partial<FeatureVariantModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
+
+            if (obj.variant) {
+                this.variant = ProjectVariantModel.fromObject(obj.variant);
+            }
         }
     }
 
     static mergeMany(a: DeepPartial<FeatureVariantModel[]> = [], b: DeepPartial<FeatureVariantModel>[] = []): FeatureVariantModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureVariantModel[];
         return joinArraysByIdWithAssigner<FeatureVariantModel>(FeatureVariantModel.merge, a, b);
     }
 
@@ -59,7 +63,7 @@ export class FeatureVariantModel {
         return new FeatureVariantModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureVariantModel(result);
     }
 
@@ -86,7 +90,7 @@ export class FeatureVariantModel {
         const length = variants.length;
         let countHasSplit = 0;
         let totalSplitVal = 0;
-
+        
         return variants
             .map(variant => {
                 if (typeof variant.split === 'number') {
@@ -95,9 +99,9 @@ export class FeatureVariantModel {
                 }
                 return variant
             }).map(variant => {
-                if (typeof variant.split !== 'number') {
-                    // calculate the split of variants that don't have split percentages
-                    // by the remaining total % after variants that do have split percentages.
+                // calculate the split of variants that don't have split percentages
+                // by the remaining total % after variants that do have split percentages.
+                if (countHasSplit !== totalSplitVal) {
                     variant.split = (1 - totalSplitVal) / (length - countHasSplit);
                 }
                 return FeatureVariantModel.toResult(variant);

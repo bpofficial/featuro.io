@@ -2,6 +2,7 @@ import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } fr
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
+import { bool, object } from "yup";
 
 @Entity('feature_environments')
 export class FeatureEnvironmentModel {
@@ -28,6 +29,20 @@ export class FeatureEnvironmentModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
+    toDto() {
+        return FeatureEnvironmentModel.toDto(this);
+    }
+
+    validate(softValidate = false) {
+        try {
+            const schema = FeatureEnvironmentModel.getValidationSchema(!softValidate);
+            schema.validateSync(this);
+            return true;
+        } catch (err) {
+            return err.errors || ['Unknown error'];
+        }
+    }
+
     merge(obj: DeepPartial<FeatureEnvironmentModel>) {
         if (!isObjectLike(obj)) return this;
 
@@ -51,7 +66,7 @@ export class FeatureEnvironmentModel {
     }
 
     static mergeMany(a: DeepPartial<FeatureEnvironmentModel[]> = [], b: DeepPartial<FeatureEnvironmentModel>[] = []): FeatureEnvironmentModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureEnvironmentModel[];
         return joinArraysByIdWithAssigner<FeatureEnvironmentModel>(FeatureEnvironmentModel.merge, a, b);
     }
 
@@ -59,12 +74,13 @@ export class FeatureEnvironmentModel {
         return new FeatureEnvironmentModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureEnvironmentModel(result);
     }
 
     static toDto(obj?: Partial<FeatureEnvironmentModel>) {
-        if (!obj) return null;
+        if (!isObjectLike(obj)) return null;
+
         return {
             isActive: obj.isActive,
             environment: EnvironmentModel.toDto(obj?.environment)
@@ -78,5 +94,11 @@ export class FeatureEnvironmentModel {
             a[v.environment.key] = FeatureEnvironmentModel.fromObject(v);
             return a;
         }, {} as Record<string, Partial<FeatureEnvironmentModel>>);
+    }
+
+    static getValidationSchema(strict = false) { 
+        return object({
+            isActive: bool()[strict ? 'required' : 'optional']()
+        });
     }
 }

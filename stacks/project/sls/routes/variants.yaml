@@ -1,0 +1,43 @@
+createVariant:
+    handler: src/variants/create-variant/handler.createVariant
+    events:
+        - http:
+              method: POST
+              path: /api/v1/projects/{projectId}/variants
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+updateVariant:
+    handler: src/variants/update-variant/handler.updateVariant
+    events:
+        - http:
+              method: PUT
+              path: /api/v1/projects/{projectId}/variants/{variantId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+                      
+deleteVariant:
+    handler: src/variants/delete-variant/handler.deleteVariant
+    events:
+        - http:
+              method: DELETE
+              path: /api/v1/projects/{projectId}/variants/{variantId}
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
+
+listVariant:
+    handler: src/variants/list-variants/handler.listVariants
+    events:
+        - http:
+              method: GET
+              path: /api/v1/projects/{projectId}/variants
+              authorizer:
+                  type: CUSTOM
+                  authorizerId:
+                      Fn::ImportValue: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}

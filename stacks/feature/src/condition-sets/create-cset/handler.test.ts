@@ -1,4 +1,4 @@
-import { FeatureModel, OrganisationModel, ProjectModel, ProjectTargetModel, ProjectVariantModel } from '@featuro.io/models';
+import { EnvironmentModel, FeatureModel, OrganisationModel, ProjectModel, ProjectTargetModel, ProjectVariantModel } from '@featuro.io/models';
 import { createConditionSet } from './handler';
 import { v4 as uuid } from 'uuid';
 import { DataSource } from 'typeorm';
@@ -9,14 +9,37 @@ describe('Create Condition Set', () => {
         id: uuid()
     })
 
-    const proj = new ProjectModel({
-        id: uuid(),
-        key: 'test-proj',
-        organisation: org
+    const projId = uuid();
+
+    const env = new EnvironmentModel({
+        id: 'env-1',
+        project: { id: projId }
     })
 
     const feature = new FeatureModel({
-        id: uuid()
+        id: uuid(),
+        project: { id: projId }
+    })
+    feature.addEnvironment(env);
+
+    const target = new ProjectTargetModel({
+        id: 'target-1',
+        project: { id: projId }
+    })
+
+    const variant = new ProjectVariantModel({
+        id: 'variant-1',
+        project: { id: projId } as any
+    })
+
+    const proj = new ProjectModel({
+        id: projId,
+        key: 'test-proj',
+        organisation: org,
+        environments: [env],
+        targets: [target],
+        variants: [variant],
+        features: [feature]
     })
 
     const user = {
@@ -24,14 +47,6 @@ describe('Create Condition Set', () => {
         sub: 'test-user-id',
         permissions: ['create:feature']
     }
-
-    const target = new ProjectTargetModel({
-        id: 'target-1',
-    })
-
-    const variant = new ProjectVariantModel({
-        id: 'variant-1'
-    })
 
     const event: any = {
         pathParameters: {
@@ -65,7 +80,6 @@ describe('Create Condition Set', () => {
             }
         }
     };
-
 
     const save = jest.fn().mockImplementation(v => ({...v, id: uuid()}));
     const findOne = jest.fn().mockImplementation(qry => {

@@ -1,7 +1,6 @@
 
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { FeatureConditionModel } from "./feature-condition.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureModel } from "./feature.model";
@@ -18,7 +17,14 @@ export class FeatureConditionSetModel {
     @Column({ nullable: true, default: null })
     description: string | null;
 
-    @ManyToMany(() => FeatureConditionModel, variant => variant.id, { cascade: ['insert', 'soft-remove'] })
+    @OneToMany(
+        () => FeatureConditionModel, 
+        cd => cd.cset, 
+        { 
+            cascade: true, 
+            eager: true 
+        }
+    )
     conditions: FeatureConditionModel[];
 
     /**
@@ -28,21 +34,12 @@ export class FeatureConditionSetModel {
      * So if the conditions were checking if the date is past X, and the date is X + 1,
      * then the evaluation would return this variant.
      */
-    @ManyToMany(() => FeatureVariantModel)
-    @JoinTable({
-        name: 'condition_result_variants',
-        inverseJoinColumn: {
-            name: 'feature_variant',
-            referencedColumnName: 'id'
-        },
-        joinColumn: {
-            name: 'feature_condition_set',
-            referencedColumnName: 'id'
-        }
-    })
+    @ManyToMany(() => FeatureVariantModel, { cascade: true })
+    @JoinTable()
     variants: FeatureVariantModel[];
 
-    @ManyToOne(() => FeatureModel, env => env.conditionSets)
+    @ManyToOne(() => FeatureModel, feat => feat.conditionSets)
+    @JoinColumn()
     feature: FeatureModel;
 
     @CreateDateColumn()
@@ -53,6 +50,10 @@ export class FeatureConditionSetModel {
 
     @DeleteDateColumn()
     deletedAt: Date;
+
+    evaluate(context: Record<string, unknown> = {}) {
+        return this.conditions.every(cd => cd.evalulate(context));
+    }
 
     toDto() {
         return FeatureConditionSetModel.toDto(this);
@@ -88,10 +89,6 @@ export class FeatureConditionSetModel {
         return this;
     }
 
-    evaluate(context: Record<string, any>) {
-        return this.conditions.every(cd => cd.evalulate(context));
-    }
-
     constructor(obj?: DeepPartial<FeatureConditionSetModel>) {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
@@ -107,7 +104,7 @@ export class FeatureConditionSetModel {
     }
 
     static mergeMany(a: DeepPartial<FeatureConditionSetModel[]> = [], b: DeepPartial<FeatureConditionSetModel>[] = []): FeatureConditionSetModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureConditionSetModel[];
         return joinArraysByIdWithAssigner<FeatureConditionSetModel>(FeatureConditionSetModel.merge, a, b);
     }
 
@@ -120,7 +117,7 @@ export class FeatureConditionSetModel {
     }
 
     static fromObjectArray(results: unknown[]) {
-        return results.map(r => FeatureModel.fromObject(r))
+        return results.map(r => FeatureConditionSetModel.fromObject(r))
     }
 
     static toDto(obj?: Partial<FeatureConditionSetModel>) {

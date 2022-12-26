@@ -13,7 +13,7 @@ export function joinArraysById<T extends { id: string }>(...lists: T[][]) {
 }
 
 export function joinArraysByIdWithAssigner<T extends { id: string | number }>(
-    assigner: (a: DeepPartial<T> | T, b: DeepPartial<T> | T) => T, 
+    assigner: (a: DeepPartial<T> | T, b: DeepPartial<T> | T) => T,
     ...lists: DeepPartial<T>[][]
 ): T[] {
     return Object.values(

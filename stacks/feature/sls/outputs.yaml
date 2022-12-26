@@ -20,8 +20,39 @@ Outputs:
         Export:
             Name: ${self:custom.serviceName}-ApiGatewayAuthorizerId-${self:custom.currentStage}
 
-    ApiGatewayResourceAgentWorkstreamSyncPath:
+    ApiGatewayResourceFeaturesPath:
         Value:
             Ref: ApiGatewayResourceFeaturesPath
         Export:
             Name: ${self:custom.serviceName}-ApiPath-Features-${self:custom.currentStage}
+
+    ApiGatewayResourceFeaturesByIdPath:
+        Value:
+            Ref: ApiGatewayResourceFeaturesByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-FeaturesById-${self:custom.currentStage}
+
+    ApiGatewayResourceConditionSetsPath:
+        Value:
+            Ref: ApiGatewayResourceConditionSetsPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-ConditionSets-${self:custom.currentStage}
+
+    ApiGatewayResourceConditionSetsByIdPath:
+        Value:
+            Ref: ApiGatewayResourceConditionSetsByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-ConditionSetsById-${self:custom.currentStage}
+
+    ApiGatewayResourceSettingsPath:
+        Value:
+            Ref: ApiGatewayResourceSettingsPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-Settings-${self:custom.currentStage}
+
+    ApiGatewayResourceSettingsByIdPath:
+        Value:
+            Ref: ApiGatewayResourceSettingsByIdPath
+        Export:
+            Name: ${self:custom.serviceName}-ApiPath-SettingsById-${self:custom.currentStage}
+

@@ -2,8 +2,8 @@ import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { ProjectModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
 import { createConnection } from '@feature.io/db';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
 export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -18,15 +18,18 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
 
         let context: Record<string, string | number | boolean>; 
         try {
-            const raw = event.queryStringParameters['context']?.trim()
-            context = JSON.parse(raw.length ? raw : JSON.stringify({}));
+            const raw = event.queryStringParameters?.['context']?.trim?.()
+            if (raw) {
+                context = JSON.parse(raw.length ? raw : JSON.stringify({}));
+            }
         } catch (err) {
             return BadRequest('Failed to parse context data');
         }
 
         connection = connection || await createConnection();
-        const project = await connection.getRepository(ProjectModel).findOne({
+        let project = await connection.getRepository(ProjectModel).findOne({
             where: {
+                id: projectId,
                 features: {
                     id: featureId,
                     environmentSettings: {
@@ -36,20 +39,28 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
                     }
                 },
             },
-            cache: {
-                id: `${projectId}:${identity}:${featureId}`,
-                milliseconds: 1000 * 60 * 60 * 4 // 4 hours
-            },
+            // cache: {
+            //     id: `${projectId}:${identity}:${featureId}`,
+            //     milliseconds: 1000 * 60 * 60 * 4 // 4 hours
+            // },
             relations: [
                 'features', 
                 'features.environmentSettings',
-                'features.environmentSettings.environment'
+                'features.environmentSettings.environment',
+                'features.activeDefaultVariant',
+                'features.inactiveVariant',
+                'features.conditionSets',
+                'features.conditionSets.variants',
+                'features.conditionSets.variants.variant',
+                'features.conditionSets.conditions',
+                'features.conditionSets.conditions.target'
             ]
         })
+        project = ProjectModel.fromObject(project);
 
         const feature = project.features[0]
         const environment = project.features[0].environmentSettings[0]
-        const result = feature.evaluate(environment.id, context);
+        const result = feature.evaluate(environment, context);
 
         return Ok(result);
     } catch (err) {

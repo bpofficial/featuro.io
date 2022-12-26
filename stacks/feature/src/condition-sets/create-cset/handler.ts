@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Created, Forbidden, InternalServerError, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Created, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { FeatureConditionSetModel, ProjectModel } from '@featuro.io/models';
+import { FeatureConditionSetModel, FeatureModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
 import { createConnection } from '@feature.io/db';
 
@@ -19,7 +19,7 @@ export const createConditionSet: APIGatewayProxyHandler = async (event): Promise
         const userOrgId = identity.org;
         const permissions = identity.permissions;
 
-        if (!permissions || !permissions.includes('create:feature')) return Forbidden();
+        if (!permissions || !permissions.includes('update:feature')) return Forbidden();
 
         const body = JSON.parse(event.body);
         /**
@@ -65,12 +65,13 @@ export const createConditionSet: APIGatewayProxyHandler = async (event): Promise
             }, 
             relations: [
                 'organisation', 
-                'features'
+                'features',
+                'features.environmentSettings'
             ] 
         })
         if (!project) return Forbidden();
 
-        cset.feature = project.features[0];
+        cset.feature = new FeatureModel({ id: project.features[0].id });
 
         let result = await repos.csets.save(cset);
         result = FeatureConditionSetModel.fromObject(result);

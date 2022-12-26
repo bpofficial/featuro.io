@@ -51,9 +51,21 @@ provider:
         restApiResources:
             'projects':
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Projects-${self:custom.currentStage}
+            'projects/{projectId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-ProjectsById-${self:custom.currentStage}
+            'projects/{projectId}/targets':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Targets-${self:custom.currentStage}
+            'projects/{projectId}/targets/{targetId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-TargetsById-${self:custom.currentStage}
+            'projects/{projectId}/variants':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Variants-${self:custom.currentStage}
+            'projects/{projectId}/variants/{variantId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-VariantsById-${self:custom.currentStage}
 
 functions:
     - ${file(./sls/routes/projects.yaml)}
+    - ${file(./sls/routes/targets.yaml)}
+    - ${file(./sls/routes/variants.yaml)}
 
 resources:
     - ${file(./sls/api.yaml)}

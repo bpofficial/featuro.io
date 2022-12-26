@@ -20,7 +20,7 @@ export class ProjectVariantModel {
 
     @ManyToOne(() => ProjectModel)
     @JoinColumn()
-    project: ProjectModel
+    project: ProjectModel;
 
     @CreateDateColumn()
     createdAt: Date;

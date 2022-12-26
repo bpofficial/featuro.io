@@ -51,9 +51,21 @@ provider:
         restApiResources:
             'features':
                 Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Features-${self:custom.currentStage}
+            'features/{featureId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-FeaturesById-${self:custom.currentStage}
+            'features/{featureId}/conditionsets':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-ConditionSets-${self:custom.currentStage}
+            'features/{featureId}/conditionsets/{csetId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-ConditionSetsById-${self:custom.currentStage}
+            'features/{featureId}/settings':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-Settings-${self:custom.currentStage}
+            'features/{featureId}/settings/{settingsId}':
+                Fn::ImportValue: ${self:custom.serviceName}-ApiPath-SettingsById-${self:custom.currentStage}
 
 functions:
     - ${file(./sls/routes/feature.yaml)}
+    - ${file(./sls/routes/csets.yaml)}
+    - ${file(./sls/routes/settings.yaml)}
 
 resources:
     - ${file(./sls/api.yaml)}

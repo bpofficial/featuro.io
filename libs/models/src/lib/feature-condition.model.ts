@@ -1,10 +1,10 @@
 import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectTargetModel } from "./project-target.model";
 import get from 'get-value';
-import { DateTime } from 'luxon';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { DateTime, DateTimeOptions } from 'luxon';
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { object, string } from "yup";
+import { FeatureConditionSetModel } from "./feature-condition-set.model";
 
 @Entity('feature_conditions')
 export class FeatureConditionModel {
@@ -12,7 +12,7 @@ export class FeatureConditionModel {
     id: string;
 
     // i.e. Date, Hour of the Day, Subdomain, Email etc...
-    @ManyToOne(() => ProjectTargetModel)
+    @ManyToOne(() => ProjectTargetModel, { eager: true })
     @JoinColumn()
     target: ProjectTargetModel;
 
@@ -22,6 +22,10 @@ export class FeatureConditionModel {
     // This value is static and stored with the condition.
     @Column()
     staticOperand: string;
+
+    @ManyToOne(() => FeatureConditionSetModel)
+    @JoinColumn()
+    cset: FeatureConditionSetModel;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -65,7 +69,7 @@ export class FeatureConditionModel {
         return this;
     }
 
-    eval(valueA: any, valueB: any, type: any, op: any) {
+    eval(valueA: unknown, valueB: unknown, type: 'number' | 'string' | 'date', op: string) {
         switch (type) {
             case 'number':
                 switch (op) {
@@ -92,13 +96,25 @@ export class FeatureConditionModel {
                     case 'neq': // not equals
                         return valueA !== valueB;
                     case 'co': // contains
-                        return valueA.includes(valueB);
+                        if (typeof valueA === 'string') {
+                            return valueA.includes(valueB as string);
+                        }
+                        break;
                     case 'nco': // not contains
-                        return !valueA.includes(valueB);
+                        if (typeof valueA === 'string') {
+                            return !valueA.includes(valueB as string);
+                        }
+                        break;
                     case 'sw': // starts with
-                        return valueA.startsWith(valueB);
+                        if (typeof valueA === 'string') {
+                            return !valueA.startsWith(valueB as string);
+                        }
+                        break;
                     case 'ew': // ends with
-                        return valueA.endsWith(valueB);
+                        if (typeof valueA === 'string') {
+                            return !valueA.endsWith(valueB as string);
+                        }
+                        break;
                     case 'regex':
                         //
                 }
@@ -108,10 +124,10 @@ export class FeatureConditionModel {
         }
     }
 
-    evalulate(context: Record<string, any>) {
-        let value: any;
+    evalulate(context: Record<string, unknown>) {
+        let value: string | number | DateTime;
         let type: string;
-        const zone = context.timeZone ?? null;
+        const zone = context?.timeZone as DateTimeOptions['zone'] ?? null;
         const date = DateTime.fromObject({}, zone ? { zone } : {});
 
         if (!this.target.isSystem && this.target.valueKey) {
@@ -135,9 +151,9 @@ export class FeatureConditionModel {
             switch (this.target.type) {
                 case 'number':
                     {
-                        const na = Number(value);
-                        const nb = Number(this.staticOperand);
-                        return this.eval(na, nb, type, this.operator)
+                        const numA = Number(value);
+                        const numB = Number(this.staticOperand);
+                        return this.eval(numA, numB, type, this.operator)
                     }
                 case 'date':
                     {
@@ -153,15 +169,17 @@ export class FeatureConditionModel {
                     }
                 case 'string':
                     {
-                        let sa: string = value;
-                        let sb: string = this.staticOperand;
+                        if (typeof value === 'string') {
+                            let strA = value;
+                            let strB = this.staticOperand;
 
-                        if (!this.target.caseSensitive) {
-                            sa = value.toLowerCase();
-                            sb = this.staticOperand.toLowerCase();
+                            if (!this.target.caseSensitive) {
+                                strA = value.toLowerCase();
+                                strB = this.staticOperand.toLowerCase();
+                            }
+
+                            return this.eval(strA, strB, type, this.operator)
                         }
-
-                        return this.eval(sa, sb, type, this.operator)
                     }
             }
         }
@@ -178,7 +196,7 @@ export class FeatureConditionModel {
     }
 
     static mergeMany(a: DeepPartial<FeatureConditionModel[]> = [], b: DeepPartial<FeatureConditionModel>[] = []): FeatureConditionModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureConditionModel[];
         return joinArraysByIdWithAssigner<FeatureConditionModel>(FeatureConditionModel.merge, a, b);
     }
 

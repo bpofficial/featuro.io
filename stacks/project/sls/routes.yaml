@@ -48,7 +48,7 @@ Resources:
             RestApiId:
                 Ref: ApiGatewayRestApi
 
-    ApiGatewayResourceProjectsWithIdOptions:
+    ApiGatewayResourceProjectsByIdOptions:
         Type: AWS::ApiGateway::Method
         Properties:
             AuthorizationType: 'NONE'
@@ -74,5 +74,161 @@ Resources:
                           application/json: ''
             ResourceId:
                 Ref: ApiGatewayResourceProjectByIdPath
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    # PATH /projects/{projectId}/targets
+    ApiGatewayResourceTargetsPath:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            ParentId:
+                Ref: ApiGatewayResourceProjectByIdPath
+            PathPart: 'targets'
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    ApiGatewayResourceTargetsOptions:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: 'NONE'
+            HttpMethod: 'OPTIONS'
+            MethodResponses:
+                - StatusCode: 200
+                  ResponseParameters:
+                      method.response.header.Access-Control-Allow-Origin: true
+                      method.response.header.Access-Control-Allow-Headers: true
+                      method.response.header.Access-Control-Allow-Methods: true
+            Integration:
+                Type: MOCK
+                RequestTemplates:
+                    application/json: '{statusCode:200}'
+                ContentHandling: 'CONVERT_TO_TEXT'
+                IntegrationResponses:
+                    - StatusCode: 200
+                      ResponseParameters:
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-datadog-trace-id,x-datadog-parent-id,x-datadog-origin,x-datadog-sampling-priority,x-datadog-sampled'"
+                          method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,DELETE,POST,PUT,PATCH'"
+                      ResponseTemplates:
+                          application/json: ''
+            ResourceId:
+                Ref: ApiGatewayResourceTargetsPath
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    # PATH /projects/{projectId}/targets/{targetId}
+    ApiGatewayResourceTargetsByIdPath:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            ParentId:
+                Ref: ApiGatewayResourceTargetsPath
+            PathPart: '{targetId}'
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    ApiGatewayResourceTargetsByIdOptions:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: 'NONE'
+            HttpMethod: 'OPTIONS'
+            MethodResponses:
+                - StatusCode: 200
+                  ResponseParameters:
+                      method.response.header.Access-Control-Allow-Origin: true
+                      method.response.header.Access-Control-Allow-Headers: true
+                      method.response.header.Access-Control-Allow-Methods: true
+            Integration:
+                Type: MOCK
+                RequestTemplates:
+                    application/json: '{statusCode:200}'
+                ContentHandling: 'CONVERT_TO_TEXT'
+                IntegrationResponses:
+                    - StatusCode: 200
+                      ResponseParameters:
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-datadog-trace-id,x-datadog-parent-id,x-datadog-origin,x-datadog-sampling-priority,x-datadog-sampled'"
+                          method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,DELETE,POST,PUT,PATCH'"
+                      ResponseTemplates:
+                          application/json: ''
+            ResourceId:
+                Ref: ApiGatewayResourceTargetsByIdPath
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    # PATH /projects/{projectId}/variants
+    ApiGatewayResourceVariantsPath:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            ParentId:
+                Ref: ApiGatewayResourceProjectByIdPath
+            PathPart: 'variants'
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    ApiGatewayResourceVariantsOptions:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: 'NONE'
+            HttpMethod: 'OPTIONS'
+            MethodResponses:
+                - StatusCode: 200
+                  ResponseParameters:
+                      method.response.header.Access-Control-Allow-Origin: true
+                      method.response.header.Access-Control-Allow-Headers: true
+                      method.response.header.Access-Control-Allow-Methods: true
+            Integration:
+                Type: MOCK
+                RequestTemplates:
+                    application/json: '{statusCode:200}'
+                ContentHandling: 'CONVERT_TO_TEXT'
+                IntegrationResponses:
+                    - StatusCode: 200
+                      ResponseParameters:
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-datadog-trace-id,x-datadog-parent-id,x-datadog-origin,x-datadog-sampling-priority,x-datadog-sampled'"
+                          method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,DELETE,POST,PUT,PATCH'"
+                      ResponseTemplates:
+                          application/json: ''
+            ResourceId:
+                Ref: ApiGatewayResourceVariantsPath
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    # PATH /projects/{projectId}/variants/{variantId}
+    ApiGatewayResourceVariantsByIdPath:
+        Type: AWS::ApiGateway::Resource
+        Properties:
+            ParentId:
+                Ref: ApiGatewayResourceVariantsPath
+            PathPart: '{variantId}'
+            RestApiId:
+                Ref: ApiGatewayRestApi
+
+    ApiGatewayResourceVariantsByIdOptions:
+        Type: AWS::ApiGateway::Method
+        Properties:
+            AuthorizationType: 'NONE'
+            HttpMethod: 'OPTIONS'
+            MethodResponses:
+                - StatusCode: 200
+                  ResponseParameters:
+                      method.response.header.Access-Control-Allow-Origin: true
+                      method.response.header.Access-Control-Allow-Headers: true
+                      method.response.header.Access-Control-Allow-Methods: true
+            Integration:
+                Type: MOCK
+                RequestTemplates:
+                    application/json: '{statusCode:200}'
+                ContentHandling: 'CONVERT_TO_TEXT'
+                IntegrationResponses:
+                    - StatusCode: 200
+                      ResponseParameters:
+                          method.response.header.Access-Control-Allow-Origin: "'*'"
+                          method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,x-datadog-trace-id,x-datadog-parent-id,x-datadog-origin,x-datadog-sampling-priority,x-datadog-sampled'"
+                          method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET,DELETE,POST,PUT,PATCH'"
+                      ResponseTemplates:
+                          application/json: ''
+            ResourceId:
+                Ref: ApiGatewayResourceVariantsByIdPath
             RestApiId:
                 Ref: ApiGatewayRestApi

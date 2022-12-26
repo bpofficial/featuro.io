@@ -87,15 +87,11 @@ export class ProjectModel {
             Object.assign(this, obj);
 
             if (this.environments) {
-                this.environments = this.environments.map(env => EnvironmentModel.fromObject(env))
-            } else {
-                this.environments = [];
+                this.environments = this.environments.map(EnvironmentModel.fromObject)
             }
 
             if (this.features) {
-                this.features = this.features.map(ft => FeatureModel.fromObject(ft));
-            } else {
-                this.features = [];
+                this.features = this.features.map(FeatureModel.fromObject);
             }
 
             if (this.organisation) {
@@ -105,7 +101,7 @@ export class ProjectModel {
     }
 
     static mergeMany(a: DeepPartial<ProjectModel[]> = [], b: DeepPartial<ProjectModel>[] = []): ProjectModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as ProjectModel[];
         return joinArraysByIdWithAssigner<ProjectModel>(ProjectModel.merge, a, b);
     }
 
@@ -113,11 +109,11 @@ export class ProjectModel {
         return new ProjectModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new ProjectModel(result);
     }
 
-    static fromObjectArray(results: any[]) {
+    static fromObjectArray(results: unknown[]) {
         return results.map(r => ProjectModel.fromObject(r))
     }
 

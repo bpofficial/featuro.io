@@ -33,10 +33,15 @@ export const listConditionSets: APIGatewayProxyHandler = async (event): Promise<
             relations: [
                 'organisation', 
                 'features', 
-                'features.conditionSets'
+                'features.conditionSets',
+                'features.conditionSets.conditions',
+                'features.conditionSets.conditions.target',
+                'features.conditionSets.variants'
             ] 
         })
         if (!project) return Forbidden();
+
+        console.log(project.features[0].conditionSets)
 
         const result = FeatureConditionSetModel
             .fromObjectArray(project.features[0].conditionSets)

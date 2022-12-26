@@ -11,9 +11,7 @@ import { ProjectVariantModel } from './project-variant.model';
 
 describe('FeatureModel', () => {
 
-    const env = new EnvironmentModel({
-        key: 'test-env'
-    })
+    const env = new EnvironmentModel({ key: 'test-env' })
 
     const targets = {
         string: new ProjectTargetModel({
@@ -37,8 +35,8 @@ describe('FeatureModel', () => {
     }
 
     const projectVariants = {
-        On: new ProjectVariantModel({ name: 'On' }),
-        Off: new ProjectVariantModel({ name: 'Off' })
+        On: new ProjectVariantModel({ key: 'On' }),
+        Off: new ProjectVariantModel({ key: 'Off' })
     }
 
     const featureVariants = {
@@ -47,19 +45,19 @@ describe('FeatureModel', () => {
     }
 
     const getFeature = (cds: FeatureConditionModel[]) => new FeatureModel({
-        active: true,
+        activeDefaultVariant: featureVariants.Off,
+        inactiveVariant: featureVariants.Off,
+        conditionSets: [
+            new FeatureConditionSetModel({
+                name: 'cd1',
+                conditions: cds,
+                variants: [featureVariants.On],
+            })
+        ],
         environmentSettings: [
             new FeatureEnvironmentModel({
+                isActive: true,
                 environment: env,
-                activeDefaultVariant: featureVariants.Off,
-                inactiveVariant: featureVariants.Off,
-                conditionSets: [
-                    new FeatureConditionSetModel({
-                        name: 'cd1',
-                        variants: [featureVariants.On],
-                        conditions: cds
-                    })
-                ]
             })
         ]
     });
@@ -79,7 +77,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate the numeric equality to true', () => {
@@ -96,7 +94,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate the numeric inequality to true', () => {
@@ -113,7 +111,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate the numeric inequality to true', () => {
@@ -130,7 +128,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate that the provided number is greater than the set number', () => {
@@ -147,7 +145,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate that the provided number is greater than the set number', () => {
@@ -164,7 +162,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate that the provided number is greater than or equal to the set number (1)', () => {
@@ -181,7 +179,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should evaluate that the provided number is greater than or equal to the set number (2)', () => {
@@ -198,7 +196,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate that the provided number is greater than or equal to the set number', () => {
@@ -215,7 +213,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate that the provided number is less than the set number', () => {
@@ -232,7 +230,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate that the provided number is less than the set number', () => {
@@ -249,7 +247,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate that the provided number is less than or equal to the set number (1)', () => {
@@ -266,7 +264,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should evaluate that the provided number is less than or equal to the set number (2)', () => {
@@ -283,7 +281,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate that the provided number is greater than or equal to the set number', () => {
@@ -300,7 +298,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
     })
 
@@ -319,7 +317,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should evaluate the string equalty to false', () => {
@@ -336,7 +334,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate the string to contain certain characters', () => {
@@ -353,7 +351,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
     })
 
@@ -368,7 +366,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should evaluate that the current date is not before the set date', () => {
@@ -381,7 +379,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
         it('should evaluate that the current date is after the set date', () => {
@@ -394,7 +392,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should evaluate that the current date is not after the set date', () => {
@@ -407,10 +405,10 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
 
-        it('should evaluate that the current hour is equal to the set value', () => {
+        it('should evaluate that the current hour is equal to the current hour', () => {
             const feature = getFeature([
                 new FeatureConditionModel({
                     target: targets.hour,
@@ -420,7 +418,133 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
+        })
+
+        it('should evaluate that the current hour is or isn\'t equal to a set hour', () => {
+            const hour = '10';
+            const now = DateTime.now().get('hour').toString();
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'eq',
+                    staticOperand: hour,
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now !== hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
+        })
+
+        it('should evaluate that the current hour isn\'t or is equal to a set hour', () => {
+            const hour = 10;
+            const now = DateTime.now().get('hour');
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'neq',
+                    staticOperand: hour.toString(),
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now === hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
+        })
+
+        it('should evaluate that the current hour is or isn\'t less than a set hour', () => {
+            const hour = 10;
+            const now = DateTime.now().get('hour');
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'lt',
+                    staticOperand: hour.toString(),
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now >= hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
+        })
+
+        it('should evaluate that the current hour is or isn\'t less than or equal to a set hour', () => {
+            const hour = 10;
+            const now = DateTime.now().get('hour');
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'lte',
+                    staticOperand: hour.toString(),
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now > hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
+        })
+
+        it('should evaluate that the current hour is or isn\'t greater than a set hour', () => {
+            const hour = 10;
+            const now = DateTime.now().get('hour');
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'gt',
+                    staticOperand: hour.toString(),
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now <= hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
+        })
+
+        it('should evaluate that the current hour is or isn\'t greater than or equal to a set hour', () => {
+            const hour = 10;
+            const now = DateTime.now().get('hour');
+
+            const feature = getFeature([
+                new FeatureConditionModel({
+                    target: targets.hour,
+                    operator: 'gte',
+                    staticOperand: hour.toString(),
+                })
+            ])
+
+            const variants = feature.evaluate('test-env');
+
+            if (now < hour) {
+                expect(variants[0].variant).toBe('Off');
+            } else {
+                expect(variants[0].variant).toBe('On');
+            }
         })
     })
 
@@ -444,7 +568,7 @@ describe('FeatureModel', () => {
             ])
 
             const variants = feature.evaluate('test-env', context);
-            expect(variants[0].variant.name).toBe('On');
+            expect(variants[0].variant).toBe('On');
         })
 
         it('should not evaluate that all conditions are met', () => {
@@ -463,7 +587,7 @@ describe('FeatureModel', () => {
 
             // Missing context here, so it will evaluate to Off as the second condition isn't met.
             const variants = feature.evaluate('test-env');
-            expect(variants[0].variant.name).toBe('Off');
+            expect(variants[0].variant).toBe('Off');
         })
     })
 

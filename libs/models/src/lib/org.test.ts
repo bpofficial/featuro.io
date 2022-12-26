@@ -9,6 +9,7 @@ import { OrganisationBillingModel } from './organisation-billing.model';
 import { OrganisationLimitsModel } from './organisation-limits.model';
 import { OrganisationModel } from './organisation.model';
 import { ProjectModel } from './project.model';
+import { ProjectVariantModel } from './project-variant.model';
 
 describe('OrganisationModel', () => {
     const env = new EnvironmentModel()
@@ -28,30 +29,37 @@ describe('OrganisationModel', () => {
                 features: [
                     new FeatureModel({
                         id: 'feature-1',
-                        active: true,
+                        activeDefaultVariant: new FeatureVariantModel(),
+                        inactiveVariant: new FeatureVariantModel(),
+                        conditionSets: [
+                            new FeatureConditionSetModel({
+                                id: 'cond-set-1',
+                                variants: [
+                                    new FeatureVariantModel({ 
+                                        id: 'variant-1', 
+                                        variant: new ProjectVariantModel({ 
+                                            id: 'project-variant-1'
+                                        }) 
+                                    })
+                                ],
+                                conditions: [
+                                    new FeatureConditionModel({
+                                        target: new ProjectTargetModel()
+                                    }),
+                                    new FeatureConditionModel({
+                                        target: new ProjectTargetModel()
+                                    }),
+                                    new FeatureConditionModel({
+                                        target: new ProjectTargetModel()
+                                    })
+                                ]
+                            })
+                        ],
                         environmentSettings: [
                             new FeatureEnvironmentModel({
                                 id: 'feature-env-1',
                                 environment: env,
-                                activeDefaultVariant: new FeatureVariantModel(),
-                                inactiveVariant: new FeatureVariantModel(),
-                                conditionSets: [
-                                    new FeatureConditionSetModel({
-                                        id: 'cond-set-1',
-                                        variants: [new FeatureVariantModel()],
-                                        conditions: [
-                                            new FeatureConditionModel({
-                                                target: new ProjectTargetModel()
-                                            }),
-                                            new FeatureConditionModel({
-                                                target: new ProjectTargetModel()
-                                            }),
-                                            new FeatureConditionModel({
-                                                target: new ProjectTargetModel()
-                                            })
-                                        ]
-                                    })
-                                ]
+                                isActive: true,
                             })
                         ],
                     })
@@ -72,19 +80,15 @@ describe('OrganisationModel', () => {
                     features: [
                         {
                             id: 'feature-1',
+                            conditionSets: [
+                                {
+                                    id: 'cond-set-1',
+                                    name: 'updated cset name'
+                                }
+                            ],
                             environmentSettings: [
                                 {
                                     id: 'feature-env-1',
-                                    conditionSets: [
-                                        {
-                                            id: 'cond-set-2',
-                                            variants: [{
-                                                variant: {
-                                                    name: 'variant updated!'
-                                                }
-                                            }]
-                                        }
-                                    ]
                                 }
                             ]
                         }
@@ -96,6 +100,7 @@ describe('OrganisationModel', () => {
         console.log(org);
         expect(org.billing.stripeCustomerId).toBe('abc');
         expect(org.billing.stripeSubscriptionId).toBe('131');
-        expect(org.projects[0].features[0].environmentSettings[0].conditionSets[1].variants[0].variant.name).toBe('variant updated!');
+        console.log(org.projects[0].features[0].conditionSets[0])
+        expect(org.projects[0].features[0].conditionSets[0].name).toBe('updated cset name');
     })
 })
