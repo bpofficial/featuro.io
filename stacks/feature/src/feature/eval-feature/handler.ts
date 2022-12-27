@@ -7,7 +7,7 @@ import isUUID from 'is-uuid';
 
 let connection: DataSource;
 export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
-    try { 
+    try {
         const projectId = event.pathParameters?.projectId;
         const featureId = event.pathParameters?.featureId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')
@@ -60,7 +60,7 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
 
         const feature = project.features[0]
         const environment = project.features[0].environmentSettings[0]
-        const result = feature.evaluate(environment, context);
+        const result = feature.evaluate(environment, { context, headers: event.headers });
 
         return Ok(result);
     } catch (err) {

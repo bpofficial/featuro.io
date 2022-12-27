@@ -41,6 +41,9 @@ export class FeatureVariantModel {
         if (typeof obj.split === 'number' || obj.split === null) 
             this.split = obj.split;
 
+        // Update
+        if (obj.variant.id) this.variant = new ProjectVariantModel({ id: obj.variant.id });
+
         return this;
     }
 

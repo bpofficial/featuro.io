@@ -68,7 +68,7 @@ export class ProjectVariantModel {
     }
 
     constructor(obj?: Partial<ProjectVariantModel>) {
-        if (obj && typeof obj === 'object' && !Array.isArray(obj) && obj !== null) {
+        if (isObjectLike(obj)) {
             Object.assign(this, obj);
         }
     }

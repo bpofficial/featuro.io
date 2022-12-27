@@ -56,6 +56,8 @@ export class ProjectModel {
 
         // Direct-update fields
         if (obj.name) this.name = obj.name;
+
+        // Deep-update fields
         if (obj.environments) this.environments = EnvironmentModel.mergeMany(this.environments, obj.environments);
         if (obj.features) this.features = FeatureModel.mergeMany(this.features, obj.features);
         if (obj.targets) this.targets = ProjectTargetModel.mergeMany(this.targets, obj.targets);

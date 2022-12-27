@@ -22,7 +22,7 @@ export const createTarget: APIGatewayProxyHandler = async (event): Promise<APIGa
         const body = JSON.parse(event.body);
         const target = ProjectTargetModel.fromObject(body)
         
-        let vResult: true | any[];
+        let vResult: true | string[];
         if ((vResult = target.validate()) !== true) return BadRequest(vResult)
 
         connection = connection || await createConnection();
@@ -38,11 +38,13 @@ export const createTarget: APIGatewayProxyHandler = async (event): Promise<APIGa
             }, 
             relations: ['organisation'] 
         })
-
         if (!project) return Forbidden();
 
+        target.project = project;
         let result = await repos.targets.save(target);
+
         result = ProjectTargetModel.fromObject(result);
+        delete result.project;
 
         return Ok(result.toDto());
     } catch (err) {

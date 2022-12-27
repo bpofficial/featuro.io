@@ -1,7 +1,7 @@
 
 import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeepPartial, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { FeatureConditionModel } from "./feature-condition.model";
+import { EvaluationData, FeatureConditionModel } from "./feature-condition.model";
 import { FeatureVariantModel } from "./feature-variant.model";
 import { FeatureModel } from "./feature.model";
 import { array, number, object, string } from "yup";
@@ -51,8 +51,8 @@ export class FeatureConditionSetModel {
     @DeleteDateColumn()
     deletedAt: Date;
 
-    evaluate(context: Record<string, unknown> = {}) {
-        return this.conditions.every(cd => cd.evalulate(context));
+    evaluate(data: EvaluationData) {
+        return this.conditions.every(cd => cd.evalulate(data));
     }
 
     toDto() {
@@ -151,15 +151,15 @@ export class FeatureConditionSetModel {
                     operator: string()[strict ? 'required' : 'optional'](),
                     staticOperand: string()[strict ? 'required' : 'optional'](),
                 })
-            )[strict ? 'optional' : 'required'](),
+            )[strict ? 'required' : 'optional'](),
             variants: array(
                 object({
                     split: number().optional(),
                     variant: object({
                         id: string().required()
                     })
-                }).required()
-            )[strict ? 'optional' : 'required']()
+                })
+            )[strict ? 'required' : 'optional']()
         });
     }
 }

@@ -47,13 +47,16 @@ export const updateConditionSet: APIGatewayProxyHandler = async (event): Promise
             relations: [
                 'organisation', 
                 'features',
-                'features.conditionSets'
+                'features.conditionSets',
+                'features.conditionSets.conditions',
+                'features.conditionSets.conditions.target'
             ]
         })
-
         if (!project) return Forbidden();
 
         const cset = FeatureConditionSetModel.fromObject(project.features[0].conditionSets[0])
+
+        // Merge the update
         cset.merge(update);
 
         let result = await repos.csets.save(cset);

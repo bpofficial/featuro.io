@@ -6,6 +6,11 @@ import { isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.
 import { object, string } from "yup";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
 
+export type EvaluationData = { 
+    context: Record<string, string | number | boolean>,
+    headers: Record<string, string>
+}
+
 @Entity('feature_conditions')
 export class FeatureConditionModel {
     @PrimaryGeneratedColumn('uuid')
@@ -15,6 +20,9 @@ export class FeatureConditionModel {
     @ManyToOne(() => ProjectTargetModel, { eager: true })
     @JoinColumn()
     target: ProjectTargetModel;
+
+    @Column({ enum: ['$context', '$headers'], type: 'simple-enum' })
+    source: '$context' | '$headers';
 
     @Column()
     operator: string;
@@ -64,7 +72,7 @@ export class FeatureConditionModel {
         if (obj.staticOperand) this.staticOperand = obj.staticOperand;
 
         // Deep-merging fields
-        if (obj.target) this.target.merge(obj.target);
+        if (obj.target.id) this.target = new ProjectTargetModel({ id: obj.target.id });
 
         return this;
     }
@@ -85,6 +93,16 @@ export class FeatureConditionModel {
                         return valueA < valueB;
                     case 'lte':
                         return valueA <= valueB;
+                    case 'in':
+                        if (typeof valueA === 'number' && typeof valueB === 'string') {
+                            try {
+                                const split = valueB.split(',').map(Number);
+                                return split.includes(Number(valueA))
+                            } catch (err) {
+                                console.warn(err);
+                                return false;
+                            }
+                        }
                 }
 
                 /* istanbul ignore next */
@@ -115,6 +133,17 @@ export class FeatureConditionModel {
                             return !valueA.endsWith(valueB as string);
                         }
                         break;
+                    case 'in':
+                        if (typeof valueA === 'string' && typeof valueB === 'string') {
+                            try {
+                                const split = valueB.split(',');
+                                return split.includes(valueA);
+                            } catch (err) {
+                                console.warn(err);
+                                return false;
+                            }
+                        }
+                        break;
                     case 'regex':
                         //
                 }
@@ -124,15 +153,19 @@ export class FeatureConditionModel {
         }
     }
 
-    evalulate(context: Record<string, unknown>) {
+    evalulate(data: EvaluationData) {
         let value: string | number | DateTime;
         let type: string;
-        const zone = context?.timeZone as DateTimeOptions['zone'] ?? null;
+        const zone = data.context?.timeZone as DateTimeOptions['zone'] ?? null;
         const date = DateTime.fromObject({}, zone ? { zone } : {});
 
         if (!this.target.isSystem && this.target.valueKey) {
-            value = get(context, this.target.valueKey) ?? null;
-            type = Number.isNaN(Number(value)) ? 'string' : 'number';
+            if (this.source === '$context') {
+                value = get(data.context, this.target.valueKey) ?? null;
+            } else {
+                value = get(data.headers, this.target.valueKey) ?? null;
+            }
+            type = this.target.type;
         } else {
             // system values
             switch (this.target.key) {

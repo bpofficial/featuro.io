@@ -10,6 +10,9 @@ export class EnvironmentModel {
     id: string;
 
     @Column()
+    key: string;
+
+    @Column()
     name: string;
 
     @Column()
@@ -51,6 +54,7 @@ export class EnvironmentModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
+        if (obj.key) delete obj.key;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
         if (obj.deletedAt) delete obj.deletedAt;
@@ -87,6 +91,7 @@ export class EnvironmentModel {
         if (!obj) return null;
         return {
             id: obj?.id,
+            key: obj?.key,
             name: obj?.name,
             apiKey: obj?.apiKey,
             createdAt: obj?.createdAt,

@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
 import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
-import { DataSource } from 'typeorm';
-import { ProjectModel, ProjectTargetModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
+import { ProjectTargetModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
+import { DataSource } from 'typeorm';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
 export const listTargets: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -31,11 +31,7 @@ export const listTargets: APIGatewayProxyHandler = async (event): Promise<APIGat
                     id: projectId,
                     organisation: { id: userOrgId }
                 }
-            }, 
-            relations: [
-                'project',
-                'project.organisation', 
-            ],
+            },
             take: pagination.pageSize,
             skip: (pagination.page - 1) * pagination.pageSize
         })

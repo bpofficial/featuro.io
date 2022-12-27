@@ -7,6 +7,7 @@ import { ProjectModel } from "./project.model";
 import { object, string } from 'yup';
 import { EnvironmentModel } from "./environment.model";
 import { FeatureConditionSetModel } from "./feature-condition-set.model";
+import { EvaluationData } from "./feature-condition.model";
 
 @Entity('features')
 export class FeatureModel {
@@ -89,12 +90,18 @@ export class FeatureModel {
         }
     }
 
-    evaluate(env: FeatureEnvironmentModel, context: Record<string, unknown> = {}) {
+    evaluate(env: FeatureEnvironmentModel, data: EvaluationData) {
         if (!env.isActive) 
             return FeatureVariantModel.fromArrayToEvaluation([this.inactiveVariant]);
 
         if (this.conditionSets.length) {
-            const sets = this.conditionSets.filter(cd => !!cd.evaluate(context));
+            const sets = this.conditionSets.filter(cd => {
+                try {
+                    return !!cd.evaluate(data)
+                } catch (err) {
+                    return false;
+                }
+            });
             if (sets.length) {
                 const result = FeatureConditionSetModel.flattenVariants(sets);
                 return FeatureVariantModel.fromArrayToEvaluation(result);
