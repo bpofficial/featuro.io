@@ -1,16 +1,13 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { ProjectModel } from "./project.model";
-import { object, string, number } from 'yup';
+import { object, string } from 'yup';
 
 @Entity('environments')
 export class EnvironmentModel {
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
-
-    @Column()
-    key: string;
 
     @Column()
     name: string;
@@ -59,7 +56,6 @@ export class EnvironmentModel {
         if (obj.deletedAt) delete obj.deletedAt;
 
         // Direct-update fields
-        if (obj.key) this.key = obj.key;
         if (obj.name) this.name = obj.name;
 
         return this;
@@ -70,7 +66,7 @@ export class EnvironmentModel {
     }
 
     static mergeMany(a: DeepPartial<EnvironmentModel[]> = [], b: DeepPartial<EnvironmentModel>[] = []): EnvironmentModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as EnvironmentModel[];
         return joinArraysByIdWithAssigner<EnvironmentModel>(EnvironmentModel.merge, a, b);
     }
 
@@ -78,11 +74,11 @@ export class EnvironmentModel {
         return new EnvironmentModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new EnvironmentModel(result);
     }
 
-    static fromObjectArray(results: any[]) {
+    static fromObjectArray(results: unknown[]) {
         if (!isArrayLike(results)) return [];
         return results.map(r => EnvironmentModel.fromObject(r))
     }
@@ -91,7 +87,6 @@ export class EnvironmentModel {
         if (!obj) return null;
         return {
             id: obj?.id,
-            key: obj?.key,
             name: obj?.name,
             apiKey: obj?.apiKey,
             createdAt: obj?.createdAt,

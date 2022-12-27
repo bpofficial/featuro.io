@@ -1,12 +1,12 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
-import { FeatureModel, ProjectModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
+import { FeatureModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const listFeatures: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
+export const listFeature: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')
@@ -20,19 +20,29 @@ export const listFeatures: APIGatewayProxyHandler = async (event): Promise<APIGa
         if (!permissions || !permissions.includes('read:feature')) return Forbidden();
 
         connection = connection || await createConnection();
-        const repos = { projects: connection.getRepository(ProjectModel) }
+        const repos = { 
+            features: connection.getRepository(FeatureModel) 
+        }
 
-        const project = await repos.projects.findOne({ 
+        const pagination = getPaginationParams(event);
+        const [features, count] = await repos.features.findAndCount({ 
             where: { 
-                id: projectId, 
-                organisation: { id: userOrgId }
-            }, relations: ['organisation', 'features'] })
+                project: {
+                    id: projectId,
+                    organisation: { id: userOrgId }
+                }
+            },
+            relations: [
+                'project',
+                'project.organisation'
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
+        })
 
-        if (!project) return Forbidden();
+        const result = FeatureModel.fromObjectArray(features).map(p => p.toDto());
 
-        const result = FeatureModel.fromObjectArray(project.features).map(p => p.toDto());
-
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

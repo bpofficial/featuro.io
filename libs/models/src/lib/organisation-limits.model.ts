@@ -1,6 +1,6 @@
 import { DeepPartial, isObjectLike } from "@featuro.io/common";
 import { Stripe } from "stripe";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
 
 const Defaults = {
@@ -60,20 +60,20 @@ export class OrganisationLimitsModel {
         return this;
     }
 
-    parseStripePriceMetadata(meta: Record<string, any>) {
+    parseStripePriceMetadata(meta: Stripe.Metadata) {
         this.members =      this.getValueFromMetadata('members-limit',      meta, Defaults.members);
         this.projects =     this.getValueFromMetadata('projects-limit',     meta, Defaults.projects);
         this.environments = this.getValueFromMetadata('environments-limit', meta, Defaults.environments);
         this.features =     this.getValueFromMetadata('features-limit',     meta, Defaults.features);
     }
 
-    private getValueFromMetadata(key: string, meta: Stripe.Metadata, fallback: any): any {
+    private getValueFromMetadata(key: string, meta: Stripe.Metadata, fallback: number): number {
         try {
             const value = Number(meta[key]);
             if (isNaN(value)) throw new Error();
             return value;
         } catch {
-            if (meta[key] === 'true' || meta[key] === 'false') return meta[key];
+            if (meta[key] === 'true' || meta[key] === 'false') return Number(meta[key]);
             return fallback;
         }
     }
@@ -82,7 +82,7 @@ export class OrganisationLimitsModel {
         if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new OrganisationLimitsModel(result);
     }
 

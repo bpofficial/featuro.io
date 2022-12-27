@@ -9,7 +9,7 @@ export class ProjectVariantModel {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     key: string;
 
     @Column()
@@ -74,7 +74,7 @@ export class ProjectVariantModel {
     }
 
     static mergeMany(a: DeepPartial<ProjectVariantModel[]> = [], b: DeepPartial<ProjectVariantModel>[] = []): ProjectVariantModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as ProjectVariantModel[];
         return joinArraysByIdWithAssigner<ProjectVariantModel>(ProjectVariantModel.merge, a, b);
     }
 
@@ -82,11 +82,11 @@ export class ProjectVariantModel {
         return new ProjectVariantModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new ProjectVariantModel(result);
     }
 
-    static fromObjectArray(results: any[]) {
+    static fromObjectArray(results: unknown[]) {
         return results.map(r => ProjectVariantModel.fromObject(r))
     }
 

@@ -1,9 +1,9 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
-import { DataSource } from 'typeorm';
-import { EnvironmentModel, ProjectModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
+import { EnvironmentModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
+import { DataSource } from 'typeorm';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
 export const listEnvironment: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
@@ -20,19 +20,29 @@ export const listEnvironment: APIGatewayProxyHandler = async (event): Promise<AP
         if (!permissions || !permissions.includes('read:environment')) return Forbidden();
 
         connection = connection || await createConnection();
-        const repos = { projects: connection.getRepository(ProjectModel) }
+        const repos = { 
+            envs: connection.getRepository(EnvironmentModel) 
+        }
 
-        const project = await repos.projects.findOne({ 
+        const pagination = getPaginationParams(event);
+        const [envs, count] = await repos.envs.findAndCount({ 
             where: { 
-                id: projectId, 
-                organisation: { id: userOrgId }
-            }, relations: ['organisation', 'environments'] })
+                project: {
+                    id: projectId, 
+                    organisation: { id: userOrgId }
+                }
+            }, 
+            relations: [
+                'project',
+                'project.organisation'
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
+        })
 
-        if (!project) return Forbidden();
+        const result = EnvironmentModel.fromObjectArray(envs).map(p => p.toDto());
 
-        const result = EnvironmentModel.fromObjectArray(project.environments).map(p => p.toDto());
-
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

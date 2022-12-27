@@ -1,19 +1,12 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { ProjectModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
-import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const deleteProject: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
+export const listProject: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
-        connection = connection || await createConnection();
-        const repos = { projects: connection.getRepository(ProjectModel) }
-
-        const id = event.pathParameters?.projectId;
-        if (!isUUID.v4(id)) return BadRequest('Invalid project id')
-
         const identity = event.requestContext.authorizer?.context;
         if (!identity) return Unauthorized();
         
@@ -22,10 +15,26 @@ export const deleteProject: APIGatewayProxyHandler = async (event): Promise<APIG
 
         if (!permissions || !permissions.includes('read:project')) return Forbidden();
 
-        const projects = await repos.projects.find({ where: { organisation: { id: userOrgId} }, relations: ['organisation'] })
+        connection = connection || await createConnection();
+        const repos = { 
+            projects: connection.getRepository(ProjectModel) 
+        }
+
+        const pagination = getPaginationParams(event);
+        const [projects, count] = await repos.projects.findAndCount({ 
+            where: { 
+                organisation: { id: userOrgId } 
+            }, 
+            relations: [
+                'organisation',
+                'environments'
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
+        })
         const result = ProjectModel.fromObjectArray(projects).map(p => p.toDto());
         
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

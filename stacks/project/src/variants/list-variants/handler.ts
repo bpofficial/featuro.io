@@ -1,12 +1,12 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
-import { DataSource } from 'typeorm';
-import { ProjectModel, ProjectVariantModel } from '@featuro.io/models';
-import isUUID from 'is-uuid';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
+import { ProjectVariantModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
+import { DataSource } from 'typeorm';
+import isUUID from 'is-uuid';
 
 let connection: DataSource;
-export const listVariants: APIGatewayProxyHandler = async (event, _context): Promise<APIGatewayProxyResult> => {
+export const listVariants: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')
@@ -21,27 +21,28 @@ export const listVariants: APIGatewayProxyHandler = async (event, _context): Pro
 
         connection = connection || await createConnection();
         const repos = { 
-            projects: connection.getRepository(ProjectModel) 
+            variants: connection.getRepository(ProjectVariantModel) 
         }
 
-        const project = await repos.projects.findOne({ 
+        const pagination = getPaginationParams(event);
+        const [variants, count] = await repos.variants.findAndCount({ 
             where: { 
-                id: projectId, 
-                organisation: { id: userOrgId }
+                project: {
+                    id: projectId, 
+                    organisation: { id: userOrgId }
+                }
             }, 
             relations: [
-                'organisation', 
-                'variants'
-            ]
+                'project',
+                'project.organisation', 
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
         })
 
-        if (!project) return Forbidden();
+        const result = ProjectVariantModel.fromObjectArray(variants).map(v => v.toDto());
 
-        const result = ProjectVariantModel
-            .fromObjectArray(project.variants)
-            .map(ProjectVariantModel.toDto);
-
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

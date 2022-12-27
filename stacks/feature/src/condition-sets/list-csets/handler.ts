@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
 import { FeatureConditionSetModel, ProjectModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
 import { DataSource } from 'typeorm';
@@ -22,32 +22,36 @@ export const listConditionSets: APIGatewayProxyHandler = async (event): Promise<
         if (!permissions || !permissions.includes('read:feature')) return Forbidden();
 
         connection = connection || await createConnection();
-        const repos = { projects: connection.getRepository(ProjectModel) }
+        const repos = { 
+            csets: connection.getRepository(FeatureConditionSetModel) 
+        }
 
-        const project = await repos.projects.findOne({ 
-            where: { 
-                id: projectId, 
-                organisation: { id: userOrgId },
-                features: { id: featureId }
+        const pagination = getPaginationParams(event);
+        const [csets, count] = await repos.csets.findAndCount({ 
+            where: {
+                feature: {
+                    id: featureId,
+                    project: {
+                        id: projectId, 
+                        organisation: { id: userOrgId },
+                    }
+                }
             }, 
             relations: [
-                'organisation', 
-                'features', 
-                'features.conditionSets',
-                'features.conditionSets.conditions',
-                'features.conditionSets.conditions.target',
-                'features.conditionSets.variants'
-            ] 
+                'conditions',
+                'conditions.target',
+                'variants',
+                'feature',
+                'feature.project',
+                'feature.project.organisation'
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
         })
-        if (!project) return Forbidden();
 
-        console.log(project.features[0].conditionSets)
+        const result = FeatureConditionSetModel.fromObjectArray(csets).map(p => p.toDto());
 
-        const result = FeatureConditionSetModel
-            .fromObjectArray(project.features[0].conditionSets)
-            .map(p => p.toDto());
-
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

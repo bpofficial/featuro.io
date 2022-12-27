@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { ProjectModel, ProjectTargetModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
@@ -21,27 +21,28 @@ export const listTargets: APIGatewayProxyHandler = async (event): Promise<APIGat
 
         connection = connection || await createConnection();
         const repos = { 
-            projects: connection.getRepository(ProjectModel) 
+            targets: connection.getRepository(ProjectTargetModel) 
         }
 
-        const project = await repos.projects.findOne({ 
+        const pagination = getPaginationParams(event);
+        const [targets, count] = await repos.targets.findAndCount({ 
             where: { 
-                id: projectId, 
-                organisation: { id: userOrgId }
+                project: {
+                    id: projectId,
+                    organisation: { id: userOrgId }
+                }
             }, 
             relations: [
-                'organisation', 
-                'targets'
-            ]
+                'project',
+                'project.organisation', 
+            ],
+            take: pagination.pageSize,
+            skip: (pagination.page - 1) * pagination.pageSize
         })
 
-        if (!project) return Forbidden();
+        const result = ProjectTargetModel.fromObjectArray(targets).map(t => t.toDto());
 
-        const result = ProjectTargetModel
-            .fromObjectArray(project.targets)
-            .map(ProjectTargetModel.toDto);
-
-        return Ok(result)
+        return Ok(paginate(result, count, pagination.page, pagination.pageSize))
     } catch (err) {
         return InternalServerError(err.message);
     }

@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrganisationModel } from "./organisation.model";
 import { DeepPartial, isObjectLike } from '@featuro.io/common';
 
@@ -63,7 +63,7 @@ export class OrganisationBillingModel {
         if (isObjectLike(obj)) Object.assign(this, obj);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new OrganisationBillingModel(result);
     }
 

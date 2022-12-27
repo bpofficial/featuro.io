@@ -75,7 +75,7 @@ export class OrganisationModel {
         return this;
     }
 
-    validate(softValidate = false): true | any[] {
+    validate(softValidate = false): true | string[] {
         try {
             let schema;
             if (!softValidate) {
@@ -113,7 +113,7 @@ export class OrganisationModel {
         }
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new OrganisationModel(result);
     }
 

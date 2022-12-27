@@ -1,9 +1,9 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { EnvironmentModel } from "./environment.model";
 import { FeatureModel } from "./feature.model";
 import { OrganisationModel } from "./organisation.model";
-import { object, string, number } from 'yup';
+import { object, string } from 'yup';
 import { ProjectTargetModel } from "./project-target.model";
 import { ProjectVariantModel } from "./project-variant.model";
 
@@ -12,9 +12,6 @@ export class ProjectModel {
 
     @PrimaryGeneratedColumn('uuid')
     id: string;
-
-    @Column()
-    key: string;
 
     @Column()
     name: string;
@@ -52,7 +49,6 @@ export class ProjectModel {
 
         // Disallowed fields
         if (obj.id) delete obj.id;
-        if (obj.key) this.key = obj.key;
         if (obj.organisation) delete obj.organisation;
         if (obj.createdAt) delete obj.createdAt;
         if (obj.updatedAt) delete obj.updatedAt;
@@ -121,7 +117,6 @@ export class ProjectModel {
         if (!obj) return null;
         return {
             id: obj?.id,
-            key: obj?.key,
             name: obj?.name,
             environments: obj?.environments ? obj.environments.map(env => EnvironmentModel.toDto(env)) : [],
             features: obj?.features ? obj.features.map(feat => FeatureModel.toDto(feat)) : [],

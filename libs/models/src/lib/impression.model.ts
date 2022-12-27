@@ -1,6 +1,5 @@
 import { DeepPartial, isArrayLike, isObjectLike, joinArraysByIdWithAssigner } from "@featuro.io/common";
 import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { FeatureEnvironmentModel } from "./feature-environment.model";
 import { FeatureModel } from "./feature.model";
 
 @Entity('feature_impressions')
@@ -34,7 +33,7 @@ export class FeatureImpressionModel {
     }
 
     static mergeMany(a: DeepPartial<FeatureImpressionModel[]> = [], b: DeepPartial<FeatureImpressionModel>[] = []): FeatureImpressionModel[] {
-        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as any;;
+        if (!isArrayLike(a) || !isArrayLike(b)) return (a || b) as FeatureImpressionModel[];
         return joinArraysByIdWithAssigner<FeatureImpressionModel>(FeatureImpressionModel.merge, a, b);
     }
 
@@ -42,7 +41,7 @@ export class FeatureImpressionModel {
         return new FeatureImpressionModel(a).merge(b);
     }
 
-    static fromObject(result: any) {
+    static fromObject(result: unknown) {
         return new FeatureImpressionModel(result);
     }
 
