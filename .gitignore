@@ -57,3 +57,5 @@ migrations.json
 !.yarn/sdks
 !.yarn/versions
 .yarn
+
+components
