@@ -3,7 +3,7 @@ import { jestProjectGenerator } from '@nrwl/jest';
 import { JestProjectSchema } from '@nrwl/jest/src/generators/jest-project/schema';
 
 export const addJest = async (host: Tree, projectName: string) => {
-  await jestProjectGenerator(host, <JestProjectSchema>{
+  await jestProjectGenerator(host, {
     project: projectName,
     setupFile: 'none',
     testEnvironment: 'node',
@@ -12,5 +12,5 @@ export const addJest = async (host: Tree, projectName: string) => {
     supportTsx: false,
     babelJest: false,
     skipFormat: true,
-  });
+  } as JestProjectSchema);
 };

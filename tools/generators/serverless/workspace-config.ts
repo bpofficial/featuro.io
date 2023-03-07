@@ -1,6 +1,6 @@
 import { addProjectConfiguration, Tree } from '@nrwl/devkit';
 
-const buildRunCommandConfig = (dir: string, command: string) => ({
+const buildRunCommandConfig = (dir, command) => ({
   executor: 'nx:run-commands',
   options: {
     cwd: dir,
@@ -9,11 +9,7 @@ const buildRunCommandConfig = (dir: string, command: string) => ({
   },
 });
 
-export const addWorkspaceConfig = (
-  host: Tree,
-  projectName: string,
-  stackRoot: string
-) => {
+export const addWorkspaceConfig = (host: Tree, projectName: string, stackRoot: string) => {
   addProjectConfiguration(host, projectName, {
     root: stackRoot,
     projectType: 'application',

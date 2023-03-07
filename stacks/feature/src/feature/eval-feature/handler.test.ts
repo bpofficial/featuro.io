@@ -22,7 +22,7 @@ describe('Evaluate feature flag', () => {
         project: { id: projId }
     })
     feature.addEnvironment(env);
-    feature.environmentSettings[0].isActive = true
+    feature.settings[0].isActive = true
 
     const target = new ProjectTargetModel({
         id: uuid(),
@@ -94,7 +94,7 @@ describe('Evaluate feature flag', () => {
 
     const save = jest.fn().mockImplementation(v => ({...v, id: uuid()}));
     const findOne = jest.fn().mockImplementation(qry => {
-        const apiKey = qry.where.features.environmentSettings.environment.apiKey;
+        const apiKey = qry.where.features.settings.environment.apiKey;
         if (apiKey === env.apiKey) return proj;
         return null;
     });

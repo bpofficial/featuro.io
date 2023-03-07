@@ -20,10 +20,7 @@ export class FeatureConditionSetModel {
     @OneToMany(
         () => FeatureConditionModel, 
         cd => cd.cset, 
-        { 
-            cascade: true, 
-            eager: true 
-        }
+        {  cascade: true }
     )
     conditions: FeatureConditionModel[];
 
@@ -127,8 +124,8 @@ export class FeatureConditionSetModel {
             id: obj?.id,
             name: obj?.name,
             description: obj?.description,
-            conditions: obj?.conditions?.length ? obj.conditions.map(FeatureConditionModel.toDto) : undefined,
-            variants: obj?.variants?.length ? obj.variants.map(FeatureVariantModel.toDto) : undefined,
+            conditions: obj?.conditions?.map?.(FeatureConditionModel.toDto),
+            variants: obj?.variants?.map?.(FeatureVariantModel.toDto),
         }
     }
 
@@ -162,4 +159,14 @@ export class FeatureConditionSetModel {
             )[strict ? 'required' : 'optional']()
         });
     }
+
+    static EXPAND_WHITELIST = [
+        'conditions',
+        ...(FeatureConditionModel.EXPAND_WHITELIST
+                .map(w => 'conditions.' + w) ?? []),
+
+        'variants',
+        ...(FeatureVariantModel.EXPAND_WHITELIST
+                .map(w => 'variants.' + w) ?? [])
+    ]
 }

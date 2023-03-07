@@ -16,7 +16,7 @@ export class FeatureEnvironmentModel {
     @JoinColumn()
     environment: EnvironmentModel;
 
-    @ManyToOne(() => FeatureModel, feat => feat.environmentSettings)
+    @ManyToOne(() => FeatureModel, feat => feat.settings)
     @JoinColumn()
     feature: FeatureModel;
 
@@ -78,12 +78,12 @@ export class FeatureEnvironmentModel {
         return new FeatureEnvironmentModel(result);
     }
 
-    static toDto(obj?: Partial<FeatureEnvironmentModel>) {
+    static toDto(obj?: Partial<FeatureEnvironmentModel>): Partial<FeatureEnvironmentModel> {
         if (!isObjectLike(obj)) return null;
 
         return {
             isActive: obj.isActive,
-            environment: EnvironmentModel.toDto(obj?.environment)
+            environment: EnvironmentModel.toDto(obj?.environment) as EnvironmentModel
         }
     }
 
@@ -101,4 +101,9 @@ export class FeatureEnvironmentModel {
             isActive: bool()[strict ? 'required' : 'optional']()
         });
     }
+
+    static EXPAND_WHITELIST = [
+        'feature',
+        'environment'
+    ]
 }

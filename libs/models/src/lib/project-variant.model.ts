@@ -101,4 +101,10 @@ export class ProjectVariantModel {
             updatedAt: obj?.updatedAt
         }
     }
+
+    static EXPAND_WHITELIST = [
+        'project',
+        // ...ProjectModel.EXPAND_WHITELIST
+        //     .map(w => 'project.' + w)
+    ]
 }

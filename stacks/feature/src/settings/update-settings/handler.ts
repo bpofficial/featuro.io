@@ -41,7 +41,7 @@ export const updateSettings: APIGatewayProxyHandler = async (event): Promise<API
                 organisation: { id: userOrgId },
                 features: { 
                     id: featureId,
-                    environmentSettings: {
+                    settings: {
                         environment: {
                             id: envId
                         }
@@ -51,13 +51,13 @@ export const updateSettings: APIGatewayProxyHandler = async (event): Promise<API
             relations: [
                 'organisation', 
                 'features',
-                'features.environmentSettings',
-                'features.environmentSettings.environment'
+                'features.settings',
+                'features.settings.environment'
             ]
         })
         if (!project) return Forbidden();
 
-        const settings = FeatureEnvironmentModel.fromObject(project.features[0].environmentSettings[0])
+        const settings = FeatureEnvironmentModel.fromObject(project.features[0].settings[0])
         settings.merge(update);
 
         await repos.settings.save(settings);

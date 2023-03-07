@@ -9,7 +9,7 @@ import { Schema } from './schema';
 import { addJest } from './jest-config';
 import { addWorkspaceConfig } from './workspace-config';
 
-function cap(val: string) {
+function cap(val) {
   return val[0].toUpperCase() + val.substring(1);
 }
 

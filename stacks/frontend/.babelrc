@@ -1,0 +1,6 @@
+{
+    "presets": [
+        "@nrwl/react/babel",
+        "@babel/preset-typescript"
+    ]
+}

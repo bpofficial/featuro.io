@@ -13,16 +13,18 @@
         "noEmit": true,
         "baseUrl": ".",
         "emitDecoratorMetadata": true,
-        "lib": ["es6"],  
+        "lib": ["es6"],
         "moduleResolution": "node",
-        "target": "es5", 
+        "target": "es5",
         "paths": {
-            "@featuro.io/common": ["libs/common/src/index.ts"],
             "@feature.io/db": ["libs/models/src/db.ts"],
+            "@featuro.io/common": ["libs/common/src/index.ts"],
+            "@featuro.io/entities": ["libs/models/src/entities.ts"],
             "@featuro.io/models": ["libs/models/src/index.ts"],
-            "@featuro.io/node-sdk": ["libs/node-sdk/src/index.ts"],
+            "@featuro.io/sdk": ["libs/sdk/src/index.ts"],
             "@featuro.io/stripe": ["libs/common/src/stripe.ts"],
-            "@featuro.io/entities": ["libs/models/src/entities.ts"]
+            "@nx-serverless-template/sdk": ["libs/sdk/src/index.ts"],
+            "@nx-serverless-template/test": ["libs/test/src/index.ts"]
         }
     },
     "exclude": ["node_modules", "tmp"]

@@ -126,4 +126,8 @@ export class ProjectModel {
             updatedAt: obj?.updatedAt
         }
     }
+
+    static EXPAND_WHITELIST = [
+        'organisation'
+    ]
 }

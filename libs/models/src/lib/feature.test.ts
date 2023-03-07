@@ -54,7 +54,7 @@ describe('FeatureModel', () => {
                 variants: [featureVariants.On],
             })
         ],
-        environmentSettings: [
+        settings: [
             new FeatureEnvironmentModel({
                 isActive: true,
                 environment: env,

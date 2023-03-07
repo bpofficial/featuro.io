@@ -17,7 +17,7 @@ export class FeatureConditionModel {
     id: string;
 
     // i.e. Date, Hour of the Day, Subdomain, Email etc...
-    @ManyToOne(() => ProjectTargetModel, { eager: true })
+    @ManyToOne(() => ProjectTargetModel)
     @JoinColumn()
     target: ProjectTargetModel;
 
@@ -224,7 +224,9 @@ export class FeatureConditionModel {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
-            this.target = ProjectTargetModel.fromObject(this.target);
+            if (obj.target) {
+                this.target = ProjectTargetModel.fromObject(obj.target);
+            }
         }
     }
 
@@ -260,4 +262,8 @@ export class FeatureConditionModel {
             staticOperand: string()[strict ? 'required' : 'optional']()
         });
     }
+
+    static EXPAND_WHITELIST = [
+        'target'
+    ]
 }

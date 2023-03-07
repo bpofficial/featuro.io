@@ -5,14 +5,16 @@
     },
     "tasksRunnerOptions": {
         "default": {
-            "runner": "@nrwl/workspace/tasks-runners/default",
+            "runner": "@nrwl/nx-cloud",
             "options": {
-                "cacheableOperations": ["build", "lint", "test", "e2e"]
+                "cacheableOperations": ["build", "lint", "test", "e2e"],
+                "accessToken": "MDQ1OGZjOGYtNDQwMC00MDRjLWJiZjEtZTk0ZTYzNTkzZTM2fHJlYWQtd3JpdGU="
             }
         }
     },
     "workspaceLayout": {
-        "appsDir": "stacks"
+        "appsDir": "stacks",
+        "libsDir": "libs"
     },
     "$schema": "./node_modules/nx/schemas/nx-schema.json",
     "namedInputs": {
@@ -21,8 +23,40 @@
             "{workspaceRoot}/workspace.json",
             "{workspaceRoot}/tsconfig.base.json",
             "{workspaceRoot}/tslint.json",
-            "{workspaceRoot}/nx.json"
+            "{workspaceRoot}/nx.json",
+            "{workspaceRoot}/babel.config.json"
         ],
-        "production": ["default", "!{projectRoot}/.eslintrc.json"]
+        "production": [
+            "default",
+            "!{projectRoot}/.eslintrc.json",
+            "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
+            "!{projectRoot}/tsconfig.spec.json"
+        ]
+    },
+    "generators": {
+        "@nrwl/react": {
+            "application": {
+                "style": "@emotion/styled",
+                "linter": "eslint",
+                "bundler": "webpack",
+                "babel": true
+            },
+            "component": {
+                "style": "@emotion/styled"
+            },
+            "library": {
+                "style": "@emotion/styled",
+                "linter": "eslint",
+                "unitTestRunner": "jest"
+            }
+        }
+    },
+    "targetDefaults": {
+        "e2e": {
+            "inputs": ["default", "^production"]
+        },
+        "test": {
+            "inputs": ["default", "^production"]
+        }
     }
 }

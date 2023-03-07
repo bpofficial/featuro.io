@@ -55,7 +55,7 @@ describe('OrganisationModel', () => {
                                 ]
                             })
                         ],
-                        environmentSettings: [
+                        settings: [
                             new FeatureEnvironmentModel({
                                 id: 'feature-env-1',
                                 environment: env,
@@ -86,7 +86,7 @@ describe('OrganisationModel', () => {
                                     name: 'updated cset name'
                                 }
                             ],
-                            environmentSettings: [
+                            settings: [
                                 {
                                     id: 'feature-env-1',
                                 }

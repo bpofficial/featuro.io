@@ -23,9 +23,9 @@ export class FeatureModel {
     @OneToMany(
         () => FeatureEnvironmentModel, 
         settings => settings.feature, 
-        { eager: true, cascade: true }
+        { cascade: true }
     )
-    environmentSettings: FeatureEnvironmentModel[];
+    settings: FeatureEnvironmentModel[];
 
     /**
      * When the feature is active in an environment, and there is a non-zero number of 
@@ -34,7 +34,7 @@ export class FeatureModel {
      @OneToMany(
         () => FeatureConditionSetModel, 
         cd => cd.feature, 
-        { nullable: true, eager: true, cascade: ['soft-remove'] }
+        { nullable: true, cascade: ['soft-remove'] }
     )
     conditionSets: FeatureConditionSetModel[] | null; // These are if/else'd rules within the feature
 
@@ -49,14 +49,14 @@ export class FeatureModel {
      * When the feature is active in this environment, but there are no condition sets to evaluate,
      * use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, { eager: true, cascade: true })
+    @ManyToOne(() => FeatureVariantModel, { cascade: true })
     @JoinColumn()
     activeDefaultVariant: FeatureVariantModel;
 
     /**
      * When the feature is in-active in this environment, use this variant.
      */
-    @ManyToOne(() => FeatureVariantModel, { eager: true, cascade: true })
+    @ManyToOne(() => FeatureVariantModel, { cascade: true })
     @JoinColumn()
     inactiveVariant: FeatureVariantModel;
 
@@ -126,8 +126,8 @@ export class FeatureModel {
         if (typeof obj.name === 'string') this.name = obj.name;
 
         // Deep-merging fields
-        if (obj.environmentSettings) this.environmentSettings = 
-            FeatureEnvironmentModel.mergeMany(this.environmentSettings, obj.environmentSettings);
+        if (obj.settings) this.settings = 
+            FeatureEnvironmentModel.mergeMany(this.settings, obj.settings);
         
         if (obj.impressions) this.impressions = 
             FeatureImpressionModel.mergeMany(this.impressions, obj.impressions);
@@ -143,11 +143,11 @@ export class FeatureModel {
      * @param mergeParts A partial object containing values that are assignable to all environments
      */
     addEnvironment(environment: EnvironmentModel) {
-        if (!this.environmentSettings) this.environmentSettings = [];
+        if (!this.settings) this.settings = [];
 
-        if (this.environmentSettings.findIndex(env => env.id === environment.id) === -1) {
+        if (this.settings.findIndex(env => env.id === environment.id) === -1) {
             // Doesn't yet exist
-            this.environmentSettings.push(
+            this.settings.push(
                 new FeatureEnvironmentModel({
                     isActive: false, // Inactive by default
                     environment,
@@ -165,8 +165,8 @@ export class FeatureModel {
         if (isObjectLike(obj)) {
             Object.assign(this, obj);
 
-            if (this.environmentSettings) {
-                this.environmentSettings = this.environmentSettings.map(FeatureEnvironmentModel.fromObject);
+            if (this.settings) {
+                this.settings = this.settings.map(FeatureEnvironmentModel.fromObject);
             }
 
             if (this.conditionSets) {
@@ -198,11 +198,36 @@ export class FeatureModel {
 
     static toDto(obj?: Partial<FeatureModel>) {
         if (!obj) return null;
+        const settings = FeatureEnvironmentModel
+            .fromArrayToObject(obj?.settings?.map?.(d => d.toDto()));
+            
         return {
             id: obj?.id,
             name: obj?.name,
-            key: obj?.key
+            key: obj?.key,
+            settings: Object.keys(settings).length ? settings : undefined,
+            conditionSets: obj?.conditionSets?.map?.(cset => cset.toDto()),
+            activeDefaultVariant: obj?.activeDefaultVariant?.toDto?.(),
+            inactiveVariant: obj?.inactiveVariant?.toDto?.()
         }
     }
+
+    static EXPAND_WHITELIST = [
+        'settings',
+        ...(FeatureEnvironmentModel?.EXPAND_WHITELIST
+            ?.map?.(w => 'settings.' + w) ?? []),
+
+        'conditionSets',
+        ...(FeatureConditionSetModel?.EXPAND_WHITELIST
+            ?.map?.(w => 'conditionSets.' + w) ?? []),
+
+        'activeDefaultVariant',
+        ...(FeatureVariantModel?.EXPAND_WHITELIST
+            ?.map?.(w => 'activeDefaultVariant.' + w) ?? []),
+
+        'inactiveVariant',
+        ...(FeatureVariantModel?.EXPAND_WHITELIST
+            ?.map?.(w => 'inactiveVariant.' + w) ?? []),
+    ]
 
 }

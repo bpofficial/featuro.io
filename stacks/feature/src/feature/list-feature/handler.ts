@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate } from '@featuro.io/common';
+import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized, getPaginationParams, paginate, expandFromEvent } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { FeatureModel } from '@featuro.io/models';
 import { createConnection } from '@feature.io/db';
@@ -34,7 +34,8 @@ export const listFeature: APIGatewayProxyHandler = async (event): Promise<APIGat
             },
             relations: [
                 'project',
-                'project.organisation'
+                'project.organisation',
+                ...expandFromEvent(event, FeatureModel.EXPAND_WHITELIST)
             ],
             take: pagination.pageSize,
             skip: (pagination.page - 1) * pagination.pageSize

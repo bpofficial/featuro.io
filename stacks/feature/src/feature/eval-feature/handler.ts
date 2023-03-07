@@ -32,7 +32,7 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
                 id: projectId,
                 features: {
                     id: featureId,
-                    environmentSettings: {
+                    settings: {
                         environment: {
                             apiKey: identity.toString()
                         }
@@ -45,8 +45,8 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
             // },
             relations: [
                 'features', 
-                'features.environmentSettings',
-                'features.environmentSettings.environment',
+                'features.settings',
+                'features.settings.environment',
                 'features.activeDefaultVariant',
                 'features.inactiveVariant',
                 'features.conditionSets',
@@ -59,7 +59,7 @@ export const evaluateFeature: APIGatewayProxyHandler = async (event): Promise<AP
         project = ProjectModel.fromObject(project);
 
         const feature = project.features[0]
-        const environment = project.features[0].environmentSettings[0]
+        const environment = project.features[0].settings[0]
         const result = feature.evaluate(environment, { context, headers: event.headers });
 
         return Ok(result);

@@ -66,7 +66,7 @@ export const createConditionSet: APIGatewayProxyHandler = async (event): Promise
             relations: [
                 'organisation', 
                 'features',
-                'features.environmentSettings'
+                'features.settings'
             ] 
         })
         if (!project) return Forbidden();

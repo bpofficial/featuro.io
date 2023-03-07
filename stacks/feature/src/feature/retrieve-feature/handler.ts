@@ -1,5 +1,5 @@
 import { APIGatewayProxyHandler, APIGatewayProxyResult } from 'aws-lambda';
-import { BadRequest, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
+import { BadRequest, expandFromEvent, Forbidden, InternalServerError, Ok, Unauthorized } from '@featuro.io/common';
 import { DataSource } from 'typeorm';
 import { FeatureModel, ProjectModel } from '@featuro.io/models';
 import isUUID from 'is-uuid';
@@ -9,9 +9,8 @@ let connection: DataSource;
 export const retrieveFeature: APIGatewayProxyHandler = async (event): Promise<APIGatewayProxyResult> => {
     try {
         const projectId = event.pathParameters?.projectId;
-        const featureId = event.pathParameters?.featureId;
+        const featureIdOrKey = event.pathParameters?.featureId;
         if (!isUUID.v4(projectId)) return BadRequest('Invalid project id')
-        if (!isUUID.v4(featureId)) return BadRequest('Invalid feature id')
 
         const identity = event.requestContext.authorizer?.context;
         if (!identity) return Unauthorized();
@@ -26,19 +25,25 @@ export const retrieveFeature: APIGatewayProxyHandler = async (event): Promise<AP
             projects: connection.getRepository(ProjectModel)
         }
 
+        const featureSearch = {} as Record<string, string>;
+        if (isUUID.v4(featureIdOrKey)) {
+            featureSearch['id'] = featureIdOrKey;
+        } else {
+            featureSearch['key'] = featureIdOrKey;
+        }
+
         const project = await repos.projects.findOne({ 
             where: { 
                 id: projectId, 
                 organisation: { id: userOrgId },
-                features: { id: featureId }
+                features: featureSearch
             }, 
             relations: [
                 'organisation', 
                 'features', 
-                'features.environmentSettings'
+                ...expandFromEvent(event, FeatureModel.EXPAND_WHITELIST, 'features')
             ]
         })
-
         if (!project) return Forbidden();
 
         const result = FeatureModel.fromObject(project.features[0])

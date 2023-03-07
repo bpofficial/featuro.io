@@ -110,4 +110,10 @@ export class FeatureVariantModel {
                 return FeatureVariantModel.toResult(variant);
             });
     }
+
+    static EXPAND_WHITELIST = [
+        'variant',
+        // ...ProjectVariantModel.EXPAND_WHITELIST
+        //     .map(w => 'variant.' + w)
+    ]
 }
